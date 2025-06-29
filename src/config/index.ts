@@ -1,0 +1,19 @@
+import type { Config } from "../types";
+import { googlePlayPlatform } from "./google-play";
+import { appStorePlatform } from "./app-store";
+
+export const config: Config = {
+  platforms: {
+    google_play: googlePlayPlatform,
+    app_store: appStorePlatform,
+  },
+  selected_apps: ["366", "367"],
+  settings: {
+    dry_run: false,
+    max_retries: 3,
+    timeout: 5000,
+  },
+};
+
+export * from "./google-play";
+export * from "./app-store";
