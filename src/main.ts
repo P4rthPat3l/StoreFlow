@@ -218,7 +218,6 @@ const main = async (): Promise<void> => {
   }
 };
 
-// Handle graceful shutdown
 process.on("SIGINT", () => {
   logger.info("Received SIGINT, shutting down gracefully");
   process.exit(0);
@@ -229,7 +228,6 @@ process.on("SIGTERM", () => {
   process.exit(0);
 });
 
-// Run the application
 if (import.meta.main) {
   main();
 }
