@@ -1,3 +1,4 @@
+import type { Page as PlaywrightPage } from "playwright";
 // src/types/index.ts
 export interface AppData {
   id: number;
@@ -33,7 +34,7 @@ export interface Field {
   name?: string;
   api_key?: string;
   selector?: string;
-  action: "setText" | "check" | "uploadFile" | "selectOption" | "click";
+  action?: "setText" | "check" | "uploadFile" | "selectOption" | "click";
   default_value?: string;
   conditionals?: Conditional[];
   saved_indicator?: string;
@@ -41,12 +42,27 @@ export interface Field {
   fallback?: FallbackSelector;
   valueProcessor?: (appData: AppData, field: Field) => any;
 
+  // Group and condition support
+  group?: GroupField;
+  condition?: (
+    page: PlaywrightPage,
+    appData: AppData
+  ) => boolean | Promise<boolean>;
+
   // File upload specific properties
   dimensions?: string; // "1024x768" format for image resizing
   accept_types?: string[]; // ['image/png', 'image/jpeg']
   max_file_size?: number; // in bytes
   multiple?: boolean; // allow multiple file uploads
   required_files?: number; // minimum number of files required
+}
+
+export interface GroupField {
+  condition: (
+    page: PlaywrightPage,
+    appData: AppData
+  ) => boolean | Promise<boolean>;
+  fields: Field[];
 }
 
 export interface Conditional {

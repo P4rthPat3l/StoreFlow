@@ -23,7 +23,6 @@ export const processAppPage = async (
   };
 
   try {
-    // Validate app data
     const validation = validateAppData(appData);
     if (!validation.isValid) {
       result.errors = validation.errors;
@@ -36,14 +35,12 @@ export const processAppPage = async (
       return result;
     }
 
-    // Get platform-specific app ID
     const platformAppId = platform.app_mappings[appData.app_id];
     if (!platformAppId) {
       result.errors.push(`App mapping not found for app_id: ${appData.app_id}`);
       return result;
     }
 
-    // Navigate to page
     await navigateToPage(
       page,
       platform.base_url,
@@ -51,7 +48,6 @@ export const processAppPage = async (
       platformAppId
     );
 
-    // Select app if app selector is configured
     if (pageConfig.app_selector) {
       const appSelected = await selectApp(
         page,
@@ -64,7 +60,6 @@ export const processAppPage = async (
       }
     }
 
-    // Process page fields
     const fieldResults = await processPageFields(
       page,
       pageConfig.fields,

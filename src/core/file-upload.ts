@@ -185,7 +185,7 @@ export const uploadFile = async (
   options: UploadOptions = {}
 ): Promise<boolean> => {
   try {
-    await clearUploadZone(element);
+    // await clearUploadZone(element);
 
     const imageBuffer = await fetchImageFromUrl(imageUrl);
     const processedImage = await processImage(imageBuffer, options);

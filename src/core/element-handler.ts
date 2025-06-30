@@ -41,11 +41,9 @@ export const findElement = async (
     }
   }
 
-  // Try role-based selector if available
   if (field.fallback?.role) {
     try {
       const roleSelector = field.fallback.role;
-      // This would need to be parsed and converted to proper Playwright role selector
       logger.debug(
         `Trying role selector for ${field.api_key}: ${roleSelector}`
       );

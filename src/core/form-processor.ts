@@ -1,12 +1,12 @@
 import type { Page } from "playwright";
-import type { Field, Modal, AppData, Conditional } from "../types";
+import type { AppData, Conditional, Field, Modal } from "../types";
 import { logger } from "../utils/logger";
-import { validateField } from "../utils/validation";
 import { withRetry } from "../utils/retry";
+import { validateField } from "../utils/validation";
 import {
+  fillElement,
   findElement,
   isFieldAlreadyFilled,
-  fillElement,
 } from "./element-handler";
 
 export const processField = async (
@@ -15,6 +15,19 @@ export const processField = async (
   appData: AppData,
   dryRun: boolean = false
 ): Promise<boolean> => {
+  // if (
+  //   "pre_conditions" in field ||
+  //   "fallback_actions" in field ||
+  //   "post_conditions" in field
+  // ) {
+  //   return await processConditionalField(
+  //     page,
+  //     field as ConditionalField,
+  //     appData,
+  //     dryRun
+  //   );
+  // }
+
   const value = field.valueProcessor
     ? field.valueProcessor(appData, field)
     : field.api_key?.split(".").reduce((obj, key) => obj?.[key], appData) ||
@@ -27,7 +40,7 @@ export const processField = async (
 
   if (!value) {
     logger.debug(`No value found for field: ${field.api_key}`);
-    return false;
+    // return false;
   }
 
   // Validate field value
@@ -132,6 +145,27 @@ export const processModal = async (
   }
 };
 
+/**
+ * Processes a list of fields on a page.
+ *
+ * For each field, it will:
+ * 1. Check if the field has a group property. If it does,
+ *    it will recursively call processPageFields on the group's fields.
+ * 2. If the field has a condition, it will check the condition.
+ *    If the condition is false, it will skip the field.
+ * 3. Process the field using processField.
+ *
+ * Returns a result object with two properties:
+ * - processed: an array of strings containing the api_key or name of the successfully processed fields.
+ * - failed: an array of strings containing the api_key or name of the fields that failed to process.
+ *
+ * @param page The page to process the fields on.
+ * @param fields The list of fields to process.
+ * @param appData The app data to use when processing the fields.
+ * @param dryRun Whether to perform a dry run or not.
+ * @param maxRetries The maximum number of times to retry processing a field if it fails.
+ * @returns A result object with processed and failed arrays.
+ */
 export const processPageFields = async (
   page: Page,
   fields: Field[],
@@ -144,22 +178,61 @@ export const processPageFields = async (
 
   for (const field of fields) {
     try {
-      const success = await withRetry(
-        () => processField(page, field, appData, dryRun),
-        maxRetries
-      );
+      if (field.group) {
+        logger.info(`Processing group: ${field.name}`);
+        const shouldProcessGroup =
+          typeof field.group.condition === "function"
+            ? await field.group.condition(page, appData)
+            : true;
+
+        logger.info(`Should process group: ${shouldProcessGroup}`);
+        if (!shouldProcessGroup) {
+          logger.debug(`Skipping group: ${field.name} - condition not met`);
+          continue;
+        }
+
+        // Process fields within the group
+        const groupResults = await processPageFields(
+          page,
+          field.group.fields,
+          appData,
+          dryRun,
+          maxRetries
+        );
+
+        processed.push(...groupResults.processed);
+        failed.push(...groupResults.failed);
+        continue;
+      }
+
+      // Handle individual field
+      const success = await withRetry(async () => {
+        // Check field-level condition if it exists
+        if (typeof field.condition === "function") {
+          const shouldProcess = await field.condition(page, appData);
+          if (!shouldProcess) {
+            logger.debug(
+              `Skipping field: ${
+                field.api_key || field.name
+              } - condition not met`
+            );
+            return true; // Not a failure, just skipped
+          }
+        }
+        return processField(page, field, appData, dryRun);
+      }, maxRetries);
 
       if (success) {
-        processed.push(field.api_key);
+        processed.push(field.api_key || field.name);
       } else {
-        failed.push(field.api_key);
+        failed.push(field.api_key || field.name);
       }
     } catch (error) {
       logger.error(
-        `Failed to process field ${field.api_key} after retries`,
+        `Failed to process field ${field.api_key || field.name} after retries`,
         error
       );
-      failed.push(field.api_key);
+      failed.push(field.api_key || field.name);
     }
   }
 
