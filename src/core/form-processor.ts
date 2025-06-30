@@ -19,11 +19,15 @@ export const processField = async (
   appData: AppData,
   dryRun: boolean = false
 ): Promise<boolean> => {
-  const value =
-    field.api_key.split(".").reduce((obj, key) => obj?.[key], appData) ||
-    field.default_value;
+  const value = field.valueProcessor
+    ? field.valueProcessor(appData, field)
+    : field.api_key.split(".").reduce((obj, key) => obj?.[key], appData) ||
+      field.default_value;
+  // const value =
+  //   field.api_key.split(".").reduce((obj, key) => obj?.[key], appData) ||
+  //   field.default_value;
 
-  logger.info(`Processing field value: ${value}`);
+  // logger.info(`Processing field value: ${value}`);
 
   if (!value) {
     logger.debug(`No value found for field: ${field.api_key}`);
@@ -47,16 +51,13 @@ export const processField = async (
     return false;
   }
 
-  // Check if field is already filled correctly
   if (await isFieldAlreadyFilled(element, field, value)) {
     logger.info(`Field ${field.api_key} already filled correctly`);
     return true;
   }
 
-  // Fill the element
-  const success = await fillElement(element, field, value);
+  const success = await fillElement(element, field, value, page);
 
-  // Process conditionals if field was filled successfully
   if (success && field.conditionals) {
     await processConditionals(page, field.conditionals, appData, dryRun);
   }

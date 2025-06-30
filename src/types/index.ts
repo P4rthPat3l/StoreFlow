@@ -1,12 +1,32 @@
 // src/types/index.ts
 export interface AppData {
-  app_id: string;
+  id: number;
+  app_details: AppDetails;
+  name: string;
+  websiteUrl: string;
+  subDomain: string;
   app_name: string;
-  app_description: string;
-  collects_user_data: boolean;
-  delete_account_url?: string;
-  contact_name?: string;
-  [key: string]: any;
+  app_id: string;
+  app_icon_url: string;
+  app_splash_screen_url: string;
+  keystore_file_url: string;
+  privacy_policy_url: string;
+  terms_and_condition_url: string;
+}
+interface AppDetails {
+  app_icon: string;
+  beta_type: string;
+  countries: string[];
+  beta_testers: string[];
+  contact_name: string;
+  country_code: string;
+  contact_email: string;
+  contact_number: string;
+  app_splash_screen: string;
+  app_full_description: string;
+  app_short_description: string;
+  appName?: string;
+  app_type?: string;
 }
 
 export interface Field {
@@ -18,6 +38,14 @@ export interface Field {
   saved_indicator?: string;
   validation?: RegExp;
   fallback?: FallbackSelector;
+  valueProcessor?: (appData: AppData, field: Field) => any;
+
+  // File upload specific properties
+  dimensions?: string; // "1024x768" format for image resizing
+  accept_types?: string[]; // ['image/png', 'image/jpeg']
+  max_file_size?: number; // in bytes
+  multiple?: boolean; // allow multiple file uploads
+  required_files?: number; // minimum number of files required
 }
 
 export interface Conditional {

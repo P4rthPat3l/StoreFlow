@@ -1,7 +1,13 @@
-import type { Page, Locator } from "playwright";
+import type { Locator, Page } from "playwright";
 import type { Field } from "../types";
 import { logger } from "../utils/logger";
 import { sanitizeValue } from "../utils/validation";
+
+import {
+  uploadFile,
+  uploadMultipleFiles,
+  type UploadOptions,
+} from "./file-upload";
 
 export const findElement = async (
   page: Page,
@@ -81,7 +87,8 @@ export const isFieldAlreadyFilled = async (
 export const fillElement = async (
   element: Locator,
   field: Field,
-  value: string
+  value: string,
+  page: Page
 ): Promise<boolean> => {
   try {
     const sanitizedValue = sanitizeValue(value);
@@ -105,7 +112,7 @@ export const fillElement = async (
         break;
 
       case "uploadFile":
-        await element.setInputFiles(sanitizedValue);
+        await handleFileUpload(element, field, value);
         break;
 
       default:
@@ -119,6 +126,51 @@ export const fillElement = async (
     return true;
   } catch (error) {
     logger.error(`Failed to fill element for ${field.api_key}`, error);
+    return false;
+  }
+};
+
+const handleFileUpload = async (
+  element: Locator,
+  field: Field,
+  value: string | string[]
+): Promise<boolean> => {
+  try {
+    const uploadOptions: UploadOptions = {
+      dimensions: field.dimensions,
+      quality: 90,
+      format: "png",
+      timeout: 10000,
+    };
+
+    if (Array.isArray(value)) {
+      const result = await uploadMultipleFiles(element, value, uploadOptions);
+      const success = result.failed === 0;
+
+      if (success) {
+        logger.info(
+          `Successfully uploaded ${result.successful} files for ${field.api_key}`
+        );
+      } else {
+        logger.warn(
+          `Upload completed with ${result.failed} failures for ${field.api_key}`
+        );
+      }
+
+      return success;
+    } else {
+      const success = await uploadFile(element, value, uploadOptions);
+
+      if (success) {
+        logger.info(
+          `Successfully uploaded file for ${field.api_key}: ${value}`
+        );
+      }
+
+      return success;
+    }
+  } catch (error) {
+    logger.error(`File upload failed for ${field.api_key}:`, error);
     return false;
   }
 };
