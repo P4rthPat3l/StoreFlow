@@ -9,10 +9,6 @@ import {
   fillElement,
 } from "./element-handler";
 
-const getNestedValue = (obj: any, path: string) => {
-  return path.split(".").reduce((o, p) => (o ? o[p] : undefined), obj);
-};
-
 export const processField = async (
   page: Page,
   field: Field,

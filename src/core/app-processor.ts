@@ -161,7 +161,7 @@ export const processApp = async (
     results.push(errorResult);
   } finally {
     if (session) {
-      await closeBrowserSession(session);
+      // await closeBrowserSession(session);
     }
   }
 

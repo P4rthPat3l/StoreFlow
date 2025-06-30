@@ -18,9 +18,9 @@ export interface UploadOptions {
 
 export interface ImageProcessingResult {
   buffer: Buffer;
-  filePath: string;
   originalSize: { width: number; height: number };
   processedSize: { width: number; height: number };
+  format: string;
 }
 
 export const parseDimensions = (dimensions: string): ImageDimensions | null => {
@@ -160,25 +160,18 @@ export const processImage = async (
         break;
       case "png":
       default:
-        processor = processor.png({ quality: Math.round(quality / 10) }); // PNG quality is 0-10
+        processor = processor.png({ quality: Math.round(quality / 10) });
         break;
     }
 
     const buffer = await processor.toBuffer();
-    const fileName = generateFileName(undefined, format);
-    const filePath = join(process.cwd(), "temp", fileName);
-
-    await fs.mkdir(join(process.cwd(), "temp"), { recursive: true });
-
-    await fs.writeFile(filePath, buffer);
-
-    logger.info(`Processed image saved: ${filePath} (${buffer.length} bytes)`);
+    logger.info(`Processed image (${buffer.length} bytes)`);
 
     return {
       buffer,
-      filePath,
       originalSize,
       processedSize,
+      format,
     };
   } catch (error) {
     logger.error("Image processing failed:", error);
@@ -186,12 +179,106 @@ export const processImage = async (
   }
 };
 
-export const cleanupTempFile = async (filePath: string): Promise<void> => {
+export const uploadFile = async (
+  element: Locator,
+  imageUrl: string,
+  options: UploadOptions = {}
+): Promise<boolean> => {
   try {
-    await fs.unlink(filePath);
-    logger.debug(`Cleaned up temp file: ${filePath}`);
+    await clearUploadZone(element);
+
+    const imageBuffer = await fetchImageFromUrl(imageUrl);
+    const processedImage = await processImage(imageBuffer, options);
+    const fileName = generateFileName(undefined, processedImage.format);
+
+    const tagName = await element.evaluate((el) => el.tagName.toLowerCase());
+    if (tagName === "input") {
+      const success = await uploadFileByInput(
+        element,
+        processedImage.buffer,
+        fileName
+      );
+      if (success) return true;
+    }
+
+    const success = await uploadFileByDragDrop(
+      element,
+      processedImage.buffer,
+      fileName
+    );
+    return success;
   } catch (error) {
-    logger.warn(`Failed to cleanup temp file ${filePath}:`, error);
+    logger.error("File upload failed:", error);
+    return false;
+  }
+};
+
+export const uploadFileByDragDrop = async (
+  element: Locator,
+  fileBuffer: Buffer,
+  fileName: string
+): Promise<boolean> => {
+  try {
+    await element.evaluate(
+      (targetElement, { buffer, fileName }) => {
+        const uint8Array = new Uint8Array(buffer);
+        const file = new File([uint8Array], fileName, {
+          type: `image/${fileName.split(".").pop()?.toLowerCase() || "png"}`,
+        });
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+
+        const events = ["dragenter", "dragover", "drop"];
+
+        events.forEach((eventType) => {
+          const event = new DragEvent(eventType, {
+            dataTransfer,
+            bubbles: true,
+            cancelable: true,
+          });
+          targetElement.dispatchEvent(event);
+        });
+
+        // @ts-ignore
+        if (
+          targetElement.tagName === "INPUT" &&
+          targetElement.type === "file"
+        ) {
+          const inputEvent = new Event("change", { bubbles: true });
+          Object.defineProperty(inputEvent, "target", {
+            writable: false,
+            value: { files: [file] },
+          });
+          targetElement.dispatchEvent(inputEvent);
+        }
+      },
+      { buffer: Array.from(fileBuffer), fileName }
+    );
+
+    await element.page().waitForTimeout(2000);
+    logger.info(`Successfully uploaded file: ${fileName}`);
+    return true;
+  } catch (error) {
+    logger.error("Drag-drop upload failed:", error);
+    return false;
+  }
+};
+
+export const uploadFileByInput = async (
+  element: Locator,
+  fileBuffer: Buffer,
+  fileName: string
+): Promise<boolean> => {
+  try {
+    await element.setInputFiles(fileBuffer);
+    await element.page().waitForTimeout(1000);
+
+    logger.info(`Successfully uploaded file via input: ${fileName}`);
+    return true;
+  } catch (error) {
+    logger.error("Input upload failed:", error);
+    return false;
   }
 };
 
@@ -259,120 +346,6 @@ export const clearUploadZone = async (element: Locator): Promise<void> => {
     logger.debug("No clear button found or needed");
   } catch (error) {
     logger.warn("Error clearing upload zone:", error);
-  }
-};
-
-export const uploadFileByDragDrop = async (
-  element: Locator,
-  filePath: string,
-  fileName?: string
-): Promise<boolean> => {
-  try {
-    const fileBuffer = await fs.readFile(filePath);
-    const finalFileName = fileName || filePath.split("/").pop() || "upload.png";
-
-    const fileData = {
-      name: finalFileName,
-      mimeType: "image/png",
-      buffer: fileBuffer.toString("base64"),
-    };
-
-    await element.evaluate((targetElement, fileData) => {
-      const uint8Array = Uint8Array.from(atob(fileData.buffer), (c) =>
-        c.charCodeAt(0)
-      );
-      const file = new File([uint8Array], fileData.name, {
-        type: fileData.mimeType,
-      });
-
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-
-      const events = ["dragenter", "dragover", "drop"];
-
-      events.forEach((eventType) => {
-        const event = new DragEvent(eventType, {
-          dataTransfer,
-          bubbles: true,
-          cancelable: true,
-        });
-        targetElement.dispatchEvent(event);
-      });
-
-      //   @ts-ignore
-      if (targetElement.tagName === "INPUT" && targetElement.type === "file") {
-        const inputEvent = new Event("change", { bubbles: true });
-        Object.defineProperty(inputEvent, "target", {
-          writable: false,
-          value: { files: [file] },
-        });
-        targetElement.dispatchEvent(inputEvent);
-      }
-
-      return true;
-    }, fileData);
-
-    await element.page().waitForTimeout(2000);
-
-    logger.info(`Successfully uploaded file: ${finalFileName}`);
-    return true;
-  } catch (error) {
-    logger.error("Drag-drop upload failed:", error);
-    return false;
-  }
-};
-export const uploadFileByInput = async (
-  element: Locator,
-  filePath: string
-): Promise<boolean> => {
-  try {
-    await element.setInputFiles(filePath);
-    await element.page().waitForTimeout(1000);
-
-    logger.info(`Successfully uploaded file via input: ${filePath}`);
-    return true;
-  } catch (error) {
-    logger.error("Input upload failed:", error);
-    return false;
-  }
-};
-
-export const uploadFile = async (
-  element: Locator,
-  imageUrl: string,
-  options: UploadOptions = {}
-): Promise<boolean> => {
-  let processedImage: ImageProcessingResult | null = null;
-
-  try {
-    // const isValidTarget = await isValidUploadTarget(element);
-    // if (!isValidTarget) {
-    //   logger.warn("Element does not appear to be a valid upload target");
-    // }
-
-    await clearUploadZone(element);
-
-    const imageBuffer = await fetchImageFromUrl(imageUrl);
-    processedImage = await processImage(imageBuffer, options);
-
-    const tagName = await element.evaluate((el) => el.tagName.toLowerCase());
-    if (tagName === "input") {
-      const success = await uploadFileByInput(element, processedImage.filePath);
-      if (success) return true;
-    }
-
-    const success = await uploadFileByDragDrop(
-      element,
-      processedImage.filePath
-    );
-    return success;
-  } catch (error) {
-    logger.error("File upload failed:", error);
-    return false;
-  } finally {
-    if (processedImage) {
-      await cleanupTempFile(processedImage.filePath);
-    }
   }
 };
 

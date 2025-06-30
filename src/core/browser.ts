@@ -72,7 +72,11 @@ export const createBrowserSession = async (
       headless: false,
       // viewport: { width: 1280, height: 800 },
       slowMo: 100,
-      args: ["--disable-blink-features=AutomationControlled"],
+      args: [
+        "--disable-blink-features=AutomationControlled",
+
+        "--start-maximized",
+      ],
       // Move context options here
       // storageState: authPath,
       // userAgent:
