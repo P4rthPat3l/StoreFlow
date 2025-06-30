@@ -210,7 +210,6 @@ const main = async (): Promise<void> => {
       }
     }
 
-    // Generate and display report
     generateReport(allResults);
   } catch (error) {
     logger.error("Application failed", error);

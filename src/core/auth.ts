@@ -92,6 +92,7 @@ export const createInitialBrowserSession = async (
   logger.info(`🚀 Creating initial browser session for ${platform}`);
 
   const browser = await browserType.launch({
+    executablePath: authConfig?.executablePath,
     headless,
     slowMo: 100,
     args: ["--disable-blink-features=AutomationControlled"],
