@@ -47,12 +47,12 @@ export const processField = async (
 
   const element = await findElement(page, field);
   if (!element) {
-    logger.error(`Element not found for field: ${field.api_key}`);
+    logger.error(`Element not found for field: ${field.name}`);
     return false;
   }
 
   if (await isFieldAlreadyFilled(element, field, value)) {
-    logger.info(`Field ${field.api_key} already filled correctly`);
+    logger.info(`Field ${field.name} already filled correctly`);
     return true;
   }
 

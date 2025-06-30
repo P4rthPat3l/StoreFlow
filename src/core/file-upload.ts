@@ -345,10 +345,10 @@ export const uploadFile = async (
   let processedImage: ImageProcessingResult | null = null;
 
   try {
-    const isValidTarget = await isValidUploadTarget(element);
-    if (!isValidTarget) {
-      logger.warn("Element does not appear to be a valid upload target");
-    }
+    // const isValidTarget = await isValidUploadTarget(element);
+    // if (!isValidTarget) {
+    //   logger.warn("Element does not appear to be a valid upload target");
+    // }
 
     await clearUploadZone(element);
 

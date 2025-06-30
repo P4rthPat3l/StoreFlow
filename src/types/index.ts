@@ -30,6 +30,7 @@ interface AppDetails {
 }
 
 export interface Field {
+  name?: string;
   api_key: string;
   selector?: string;
   action: "setText" | "check" | "uploadFile" | "selectOption";
