@@ -17,7 +17,7 @@ export const processField = async (
 ): Promise<boolean> => {
   const value = field.valueProcessor
     ? field.valueProcessor(appData, field)
-    : field.api_key.split(".").reduce((obj, key) => obj?.[key], appData) ||
+    : field.api_key?.split(".").reduce((obj, key) => obj?.[key], appData) ||
       field.default_value;
   // const value =
   //   field.api_key.split(".").reduce((obj, key) => obj?.[key], appData) ||

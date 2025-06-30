@@ -115,6 +115,10 @@ export const fillElement = async (
         await handleFileUpload(element, field, value);
         break;
 
+      case "click":
+        await element.click();
+        break;
+
       default:
         logger.warn(`Unknown action: ${field.action}`);
         return false;

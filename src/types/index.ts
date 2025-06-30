@@ -31,9 +31,9 @@ interface AppDetails {
 
 export interface Field {
   name?: string;
-  api_key: string;
+  api_key?: string;
   selector?: string;
-  action: "setText" | "check" | "uploadFile" | "selectOption";
+  action: "setText" | "check" | "uploadFile" | "selectOption" | "click";
   default_value?: string;
   conditionals?: Conditional[];
   saved_indicator?: string;
