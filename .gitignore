@@ -84,3 +84,5 @@ Thumbs.db
 # Screenshots and generated assets
 screenshots/
 generated-assets/
+
+/auth-data

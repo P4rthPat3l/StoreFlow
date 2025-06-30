@@ -9,13 +9,21 @@ import {
   fillElement,
 } from "./element-handler";
 
+const getNestedValue = (obj: any, path: string) => {
+  return path.split(".").reduce((o, p) => (o ? o[p] : undefined), obj);
+};
+
 export const processField = async (
   page: Page,
   field: Field,
   appData: AppData,
   dryRun: boolean = false
 ): Promise<boolean> => {
-  const value = appData[field.api_key] || field.default_value;
+  const value =
+    field.api_key.split(".").reduce((obj, key) => obj?.[key], appData) ||
+    field.default_value;
+
+  logger.info(`Processing field value: ${value}`);
 
   if (!value) {
     logger.debug(`No value found for field: ${field.api_key}`);

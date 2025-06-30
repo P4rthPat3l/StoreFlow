@@ -12,6 +12,7 @@ export interface AuthConfig {
   platform: "google_play" | "app_store";
   authFile: string;
   loginUrl: string;
+  successUrl: string | RegExp;
   successIndicators: string[];
   loginSelectors?: {
     email?: string;
@@ -28,6 +29,7 @@ const AUTH_CONFIGS: Record<string, AuthConfig> = {
     platform: "google_play",
     authFile: "google-play-auth.json",
     loginUrl: "https://play.google.com/console/u/3/developers/",
+    successUrl: /console\/u\/\d+\/developers/,
     successIndicators: [
       "text=Apps",
       "text=Dashboard",
@@ -47,6 +49,7 @@ const AUTH_CONFIGS: Record<string, AuthConfig> = {
     platform: "app_store",
     authFile: "app-store-auth.json",
     loginUrl: "https://appstoreconnect.apple.com",
+    successUrl: /appstoreconnect\.apple\.com/,
     successIndicators: [
       "text=My Apps",
       "text=App Store Connect",
@@ -69,6 +72,7 @@ export const checkAuthFile = (
 ): boolean => {
   const authConfig = AUTH_CONFIGS[platform];
   const authPath = join(process.cwd(), authConfig.authFile);
+  logger.info(`🔍 Checking auth file for ${platform}: ${authPath}`);
   const exists = existsSync(authPath);
 
   if (exists) {
@@ -91,20 +95,24 @@ export const createInitialBrowserSession = async (
 
   logger.info(`🚀 Creating initial browser session for ${platform}`);
 
-  const browser = await browserType.launch({
-    executablePath: authConfig?.executablePath,
-    headless,
+  const userDataDir = "./auth-data";
+  const context = await chromium.launchPersistentContext(userDataDir, {
+    executablePath: process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
+    headless: false,
+    viewport: { width: 1280, height: 800 },
     slowMo: 100,
     args: ["--disable-blink-features=AutomationControlled"],
-  });
-
-  const context = await browser.newContext({
-    viewport: { width: 1280, height: 720 },
     userAgent:
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
   });
 
-  return { browser, context };
+  // const context = await browser.newContext({
+  //   viewport: { width: 1280, height: 720 },
+  //   userAgent:
+  //     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  // });
+
+  return { browser: context.browser()!, context };
 };
 
 export const performManualLogin = async (
@@ -127,11 +135,17 @@ export const performManualLogin = async (
 
     const page = await context.newPage();
 
-    // Navigate to login page
-    logger.info(`🌐 Navigating to: ${authConfig.loginUrl}`);
-    await page.goto(authConfig.loginUrl, { waitUntil: "networkidle" });
+    if (!authConfig?.loginUrl) {
+      logger.error(`❌ Login URL not found for ${platform}`);
+      return false;
+    }
 
-    // Check if already logged in
+    logger.info(`🌐 Navigating to: ${authConfig?.loginUrl}`);
+    await page.goto(authConfig?.loginUrl, {
+      waitUntil: "networkidle",
+      timeout: 60000,
+    });
+
     const isAlreadyLoggedIn = await checkIfLoggedIn(page, authConfig);
     if (isAlreadyLoggedIn) {
       logger.info(`✅ Already logged in to ${platform}`);
@@ -181,7 +195,13 @@ const checkIfLoggedIn = async (
   try {
     for (const indicator of authConfig.successIndicators) {
       try {
-        await page.waitForSelector(indicator, { timeout: 3000 });
+        // await page.waitForSelector(indicator, { timeout: 3000 });
+        await page.waitForURL(
+          "https://play.google.com/console/u/0/developers/",
+          {
+            timeout: 60000,
+          }
+        );
         logger.info(`✅ Found login success indicator: ${indicator}`);
         return true;
       } catch {
@@ -245,17 +265,17 @@ export const validateAuthSession = async (
   platform: "google_play" | "app_store",
   authFile?: string
 ): Promise<boolean> => {
-  const authConfig = AUTH_CONFIGS[platform];
-  const authPath = authFile || join(process.cwd(), authConfig.authFile);
-
-  if (!existsSync(authPath)) {
-    logger.warn(`❌ Auth file not found: ${authPath}`);
-    return false;
-  }
-
-  let browser: Browser | null = null;
-
   try {
+    const authConfig = AUTH_CONFIGS[platform];
+    const authPath = authFile || join(process.cwd(), authConfig?.authFile);
+
+    if (!existsSync(authPath)) {
+      logger.warn(`❌ Auth file not found: ${authPath}`);
+      return false;
+    }
+
+    let browser: Browser | null = null;
+
     logger.info(`🔍 Validating auth session for ${platform}...`);
 
     const browserType = platform === "app_store" ? webkit : chromium;

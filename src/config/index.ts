@@ -7,7 +7,8 @@ export const config: Config = {
     google_play: googlePlayPlatform,
     app_store: appStorePlatform,
   },
-  selected_apps: ["366", "367"],
+  // selected_apps: ["366", "367"],
+  selected_apps: ["366"],
   settings: {
     dry_run: false,
     max_retries: 3,

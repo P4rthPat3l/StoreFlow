@@ -8,8 +8,8 @@ export const findElement = async (
   field: Field
 ): Promise<Locator | null> => {
   const selectors = [
-    field.selector,
-    ...(field.fallback?.xpath ? [`xpath=${field.fallback.xpath}`] : []),
+    ...(field?.selector ? [field.selector] : []),
+    ...(field?.fallback?.xpath ? [`xpath=${field.fallback.xpath}`] : []),
   ].filter(Boolean);
 
   for (const selector of selectors) {

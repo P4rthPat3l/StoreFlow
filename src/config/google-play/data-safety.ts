@@ -1,12 +1,12 @@
 import type { Page } from "../../types";
 
 export const dataSafetyPage: Page = {
-  url_template: "/app-content/data-privacy-security",
-  app_selector: {
-    selector: "button.app-selector",
-    option_selector: "div.app-option",
-    attribute: "data-id",
-  },
+  url_template: "/{app_id}/main-store-listing",
+  // app_selector: {
+  //   selector: "button.app-selector",
+  //   option_selector: "div.app-option",
+  //   attribute: "data-id",
+  // },
   fields: [
     {
       api_key: "collects_user_data",

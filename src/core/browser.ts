@@ -20,8 +20,8 @@ export interface BrowserSession {
 }
 
 const AUTH_FILES = {
-  google_play: "google-play-auth.json",
-  app_store: "app-store-auth.json",
+  google_play: process.env.GOOGLE_PLAY_AUTH_FILE || "google-play-auth.json",
+  app_store: process.env.APP_STORE_AUTH_FILE || "app-store-auth.json",
 };
 
 export const createBrowserSession = async (
@@ -51,7 +51,6 @@ export const createBrowserSession = async (
       }
     }
 
-    // Validate auth session if requested
     if (validateAuth) {
       logger.info(`🔍 Validating authentication session...`);
       const isValid = await validateAuthSession(platform, authFile);
@@ -66,26 +65,42 @@ export const createBrowserSession = async (
 
     const browserType = platform === "app_store" ? webkit : chromium;
     const authPath = join(process.cwd(), authFile);
+    const auth_data = join(process.cwd(), "auth-data");
 
-    const browser = await browserType.launch({
-      headless,
-      slowMo: headless ? 0 : 100,
-      args: [
-        "--disable-blink-features=AutomationControlled",
-        "--disable-web-security",
-        "--disable-features=VizDisplayCompositor",
-      ],
-    });
-
-    const context = await browser.newContext({
-      storageState: authPath,
-      viewport: { width: 1280, height: 720 },
+    const context = await chromium.launchPersistentContext(auth_data, {
+      executablePath: process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
+      headless: false,
+      // viewport: { width: 1280, height: 800 },
+      slowMo: 100,
+      args: ["--disable-blink-features=AutomationControlled"],
+      // Move context options here
+      // storageState: authPath,
       userAgent:
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      // Additional context options for better compatibility
       ignoreHTTPSErrors: true,
       acceptDownloads: false,
     });
+
+    //  const browser = await browserType.launch({
+    //   executablePath: process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
+    //   headless,
+    //   slowMo: headless ? 0 : 100,
+    //   args: [
+    //     "--disable-blink-features=AutomationControlled",
+    //     "--disable-web-security",
+    //     "--disable-features=VizDisplayCompositor",
+    //   ],
+    // });
+
+    // const context = await browser.newContext({
+    //   storageState: authPath,
+    //   viewport: { width: 1280, height: 720 },
+    //   userAgent:
+    //     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    //   // Additional context options for better compatibility
+    //   ignoreHTTPSErrors: true,
+    //   acceptDownloads: false,
+    // });
 
     const page = await context.newPage();
 
@@ -95,7 +110,7 @@ export const createBrowserSession = async (
 
     logger.info(`✅ Browser session created successfully for ${platform}`);
 
-    return { browser, context, page };
+    return { browser: context.browser()!, context, page };
   } catch (error) {
     logger.error(`❌ Failed to create browser session for ${platform}`, error);
     throw new Error(
@@ -143,11 +158,14 @@ export const navigateToPage = async (
     logger.info(`🌐 Navigating to: ${url}`);
 
     await page.goto(url, {
-      waitUntil: "networkidle",
+      waitUntil: "domcontentloaded",
       timeout: 30000,
     });
 
-    await page.waitForTimeout(2000);
+    logger.info(`🌐 Navigated to: ${url}`);
+    await page.waitForLoadState("load");
+
+    // await page.waitForLoadState("load");
 
     logger.info(`✅ Successfully navigated to page`);
   } catch (error) {

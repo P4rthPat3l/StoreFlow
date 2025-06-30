@@ -1,16 +1,16 @@
 import type { Platform } from "../../types";
-import { dataSafetyPage } from "./data-safety";
-import { appContentPage } from "./app-content";
+import { mainStoreListingPage } from "./main-store-listing";
 
 export const googlePlayPlatform: Platform = {
   base_url:
     "https://play.google.com/console/u/3/developers/5696489665814861362/app",
   app_mappings: {
-    "366": "4974483354311914204",
-    "367": "4976158818989412534",
+    "366": "4972018017227662082",
+    // "367": "4976158818989412534",
   },
   pages: {
-    data_safety: dataSafetyPage,
-    app_content: appContentPage,
+    main_store_listing: mainStoreListingPage,
+    // data_safety: dataSafetyPage,
+    // app_content: appContentPage,
   },
 };

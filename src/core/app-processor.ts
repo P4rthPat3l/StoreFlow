@@ -146,7 +146,6 @@ export const processApp = async (
       result.platform = platformName;
       results.push(result);
 
-      // Add delay between pages
       await page.waitForTimeout(3000);
     }
   } catch (error) {

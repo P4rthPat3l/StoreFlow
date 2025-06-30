@@ -11,7 +11,7 @@ export interface AppData {
 
 export interface Field {
   api_key: string;
-  selector: string;
+  selector?: string;
   action: "setText" | "check" | "uploadFile" | "selectOption";
   default_value?: string;
   conditionals?: Conditional[];
@@ -38,7 +38,7 @@ export interface Modal {
 }
 
 export interface AppSelector {
-  selector: string;
+  selector?: string;
   option_selector: string;
   attribute: string;
 }

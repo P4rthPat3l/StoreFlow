@@ -106,7 +106,6 @@ const generateReport = (results: ProcessingResult[]): void => {
     logger.info(`  Failed: ${stats.failed}`);
   });
 
-  // Show detailed errors
   const failedResults = results.filter((r) => !r.success);
   if (failedResults.length > 0) {
     logger.info("\n=== ERRORS ===");
@@ -132,7 +131,6 @@ const processPlatform = async (
     throw new Error(`Platform not found: ${platformName}`);
   }
 
-  // Validate page names
   const availablePages = Object.keys(platform.pages);
   const validPages = pageNames.filter((page) => availablePages.includes(page));
 
@@ -142,7 +140,8 @@ const processPlatform = async (
     );
   }
 
-  const createSession = () => createBrowserSession(platformName as any);
+  const createSession = () =>
+    createBrowserSession(platformName as any, { validateAuth: false });
 
   return await processMultipleApps(
     appData,

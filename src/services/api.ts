@@ -2,7 +2,7 @@ import type { AppData } from "../types";
 import { logger } from "../utils/logger";
 
 interface ApiResponse {
-  success: boolean;
+  status: string;
   data: AppData[];
   message?: string;
 }
@@ -27,8 +27,10 @@ export const fetchAppData = async (
 
     const result: ApiResponse = (await response.json()) as ApiResponse;
 
-    if (!result.success || !Array.isArray(result.data)) {
-      throw new Error("Invalid API response format");
+    if (!(result?.status === "success") || !Array.isArray(result?.data)) {
+      throw new Error(
+        "Invalid API response format : " + JSON.stringify(result)
+      );
     }
 
     logger.info(`Successfully fetched ${result.data.length} apps`);
