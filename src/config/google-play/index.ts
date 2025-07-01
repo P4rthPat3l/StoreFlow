@@ -1,5 +1,9 @@
 import type { Platform } from "../../types";
 import { advertisingIdPage } from "./declarations/advertising-id";
+import { appAccessPage } from "./declarations/app-aceess";
+import { dataSafetyPage } from "./declarations/data-safety";
+import { governmentApps } from "./declarations/government-apps";
+
 import { mainStoreListingPage } from "./main-store-listing";
 
 export const googlePlayPlatform: Platform = {
@@ -12,7 +16,8 @@ export const googlePlayPlatform: Platform = {
   pages: {
     main_store_listing: mainStoreListingPage,
     advertising_id: advertisingIdPage,
-    // data_safety: dataSafetyPage,
-    // app_content: appContentPage,
+    app_access: appAccessPage,
+    government_apps: governmentApps,
+    data_safety: dataSafetyPage,
   },
 };
