@@ -9,36 +9,61 @@ import {
   type UploadOptions,
 } from "./file-upload";
 
+const DEFAULT_RETRY_ATTEMPTS = 3;
+const DEFAULT_RETRY_DELAY = 1000;
+
 export const findElement = async (
   page: Page,
-  field: Field
+  field: Field,
+  options: { retryAttempts?: number; retryDelay?: number } = {}
 ): Promise<Locator | null> => {
+  const retryAttempts = options.retryAttempts ?? DEFAULT_RETRY_ATTEMPTS;
+  const retryDelay = options.retryDelay ?? DEFAULT_RETRY_DELAY;
   const selectors = [
     ...(field?.selector ? [field.selector] : []),
     ...(field?.fallback?.xpath ? [`xpath=${field.fallback.xpath}`] : []),
   ].filter(Boolean);
 
   for (const selector of selectors) {
-    try {
-      const locator = page.locator(selector);
-      await locator.waitFor({ state: "visible", timeout: 3000 });
+    let lastError: Error | null = null;
 
-      const count = await locator.count();
-      if (count === 1) {
+    for (let attempt = 1; attempt <= retryAttempts; attempt++) {
+      try {
+        const locator = page.locator(selector);
         logger.debug(
-          `Found element for ${field.api_key} using selector: ${selector}`
+          `Attempt ${attempt}/${retryAttempts} for ${field.api_key} using selector: ${selector}`
         );
-        return locator;
-      } else if (count > 1) {
-        logger.warn(
-          `Multiple elements found for ${field.api_key} using selector: ${selector}`
-        );
-        return locator.first();
+
+        await locator.waitFor({ state: "visible", timeout: 5000 });
+
+        const count = await locator.count();
+        if (count === 1) {
+          logger.debug(
+            `Found element for ${field.api_key} using selector: ${selector}`
+          );
+          return locator;
+        } else if (count > 1) {
+          logger.warn(
+            `Multiple elements found for ${field.api_key} using selector: ${selector}`
+          );
+          return locator.first();
+        }
+      } catch (error) {
+        lastError = error as Error;
+        if (attempt < retryAttempts) {
+          const delay = retryDelay * Math.pow(2, attempt - 1);
+          logger.debug(
+            `Selector failed (attempt ${attempt}/${retryAttempts}) for ${field.api_key}: ${selector}. Retrying in ${delay}ms...`
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
       }
-    } catch (error) {
-      logger.debug(`Selector failed for ${field.api_key}: ${selector}`);
-      continue;
     }
+
+    logger.debug(
+      `All ${retryAttempts} attempts failed for ${field.api_key} with selector: ${selector}`,
+      { error: lastError }
+    );
   }
 
   if (field.fallback?.role) {

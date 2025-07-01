@@ -1,4 +1,4 @@
-import type { Page } from "../../../types";
+import type { Page } from "../../types";
 
 export const appInformation: Page = {
   url_template: "/{app_id}/distribution/info",
@@ -24,16 +24,23 @@ export const appInformation: Page = {
               xpath: `//select[@name='primaryCategory']`,
             },
           },
-          {
-            name: "Secondary Category",
-            action: "selectOption",
-            default_value: "DEVELOPER_TOOLS",
-            fallback: {
-              xpath: `//select[@name='secondaryCategory']`,
-            },
-          },
+          // {
+          //   name: "Secondary Category",
+          //   action: "selectOption",
+          //   default_value: "DEVELOPER_TOOLS",
+          //   fallback: {
+          //     xpath: `//select[@name='secondaryCategory']`,
+          //   },
+          // },
         ],
       },
     },
+    // {
+    //   name: "Save Button",
+    //   action: "click",
+    //   fallback: {
+    //     xpath: `//div[@id='heading-buttons']//button[normalize-space(text())='Save']`,
+    //   },
+    // },
   ],
 };
