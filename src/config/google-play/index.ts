@@ -3,7 +3,12 @@ import { advertisingIdPage } from "./declarations/advertising-id";
 import { appAccessPage } from "./declarations/app-aceess";
 import { dataSafetyPage } from "./declarations/data-safety";
 import { governmentApps } from "./declarations/government-apps";
-
+import { adsPage } from "./declarations/ads";
+import { financialFeaturesPage } from "./declarations/financial-features";
+import { healthAppsPage } from "./declarations/health-apps";
+import { privacyPolicyPage } from "./declarations/privacy-policy";
+import { targetAudienceAndContentPage } from "./declarations/target-audience-and-content";
+import { storeSettingsPage } from "./store-settings";
 import { mainStoreListingPage } from "./main-store-listing";
 
 export const googlePlayPlatform: Platform = {
@@ -19,5 +24,11 @@ export const googlePlayPlatform: Platform = {
     app_access: appAccessPage,
     government_apps: governmentApps,
     data_safety: dataSafetyPage,
+    ads: adsPage,
+    financial_features: financialFeaturesPage,
+    health_apps: healthAppsPage,
+    privacy_policy: privacyPolicyPage,
+    target_audience_and_content: targetAudienceAndContentPage,
+    store_settings: storeSettingsPage,
   },
 };

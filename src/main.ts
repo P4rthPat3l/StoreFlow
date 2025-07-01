@@ -2,7 +2,11 @@ import { config } from "./config";
 import { logger } from "./utils/logger";
 import { fetchAppData, getMockAppData } from "./services/api";
 import { createBrowserSession, closeBrowserSession } from "./core/browser";
-import { processMultipleApps } from "./core/app-processor";
+import {
+  processAppsInParallel,
+  processMultipleApps,
+  processPagesInParallel,
+} from "./core/app-processor";
 import type { ProcessingResult } from "./types";
 
 interface CommandLineArgs {
@@ -12,6 +16,9 @@ interface CommandLineArgs {
   dryRun?: boolean;
   mock?: boolean;
   help?: boolean;
+  parallelApps?: number;
+  parallelPages?: boolean;
+  maxConcurrent?: number;
 }
 
 const parseCommandLineArgs = (): CommandLineArgs => {
@@ -38,6 +45,15 @@ const parseCommandLineArgs = (): CommandLineArgs => {
       case "--help":
       case "-h":
         args.help = true;
+        break;
+      case "--parallel-apps":
+        args.parallelApps = parseInt(argv[++i]) || 3;
+        break;
+      case "--parallel-pages":
+        args.parallelPages = true;
+        break;
+      case "--max-concurrent":
+        args.maxConcurrent = parseInt(argv[++i]) || 3;
         break;
     }
   }
@@ -124,7 +140,8 @@ const processPlatform = async (
   pageNames: string[],
   appData: any[],
   settings: any,
-  selectedApps?: string[]
+  selectedApps?: string[],
+  parallelOptions?: { apps?: number; pages?: boolean }
 ): Promise<ProcessingResult[]> => {
   const platform = config.platforms[platformName];
   if (!platform) {
@@ -143,8 +160,52 @@ const processPlatform = async (
   const createSession = () =>
     createBrowserSession(platformName as any, { validateAuth: false });
 
+  //* Filter apps based on selection
+  const filteredApps = selectedApps?.length
+    ? appData.filter((app) => selectedApps.includes(app.app_id))
+    : appData;
+
+  //* Parallel apps processing
+  if (parallelOptions?.apps && parallelOptions.apps > 1) {
+    logger.info(
+      `\n Processing apps in parallel with ${parallelOptions.apps} concurrent apps`
+    );
+    return await processAppsInParallel(
+      filteredApps,
+      platform,
+      platformName,
+      validPages,
+      {
+        ...settings,
+        max_concurrent: parallelOptions.apps,
+      },
+      createSession,
+      closeBrowserSession,
+      selectedApps
+    );
+  }
+
+  //* Parallel pages processing
+  if (parallelOptions?.pages) {
+    logger.info(`\nProcessing pages in parallel for each app`);
+    const allResults: ProcessingResult[] = [];
+    for (const app of filteredApps) {
+      const results = await processPagesInParallel(
+        app,
+        platform,
+        platformName,
+        validPages,
+        settings
+      );
+      allResults.push(...results);
+    }
+    return allResults;
+  }
+
+  //* Fallback to sequential processing
+  logger.info(`\nProcessing apps sequentially`);
   return await processMultipleApps(
-    appData,
+    filteredApps,
     platform,
     platformName,
     validPages,
@@ -200,7 +261,11 @@ const main = async (): Promise<void> => {
           pagesToProcess,
           appData,
           settings,
-          selectedApps
+          selectedApps,
+          {
+            apps: args.parallelApps,
+            pages: args.parallelPages,
+          }
         );
 
         allResults.push(...results);

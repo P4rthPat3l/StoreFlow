@@ -108,6 +108,11 @@ export interface Config {
     dry_run: boolean;
     max_retries: number;
     timeout: number;
+
+    max_concurrent_apps: number;
+    max_concurrent_pages: number;
+    enable_parallel_processing: boolean;
+    browser_pool_size: number;
   };
 }
 

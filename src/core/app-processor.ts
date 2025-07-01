@@ -2,9 +2,94 @@ import type { Page } from "playwright";
 import type { Platform, AppData, ProcessingResult } from "../types";
 import { logger } from "../utils/logger";
 import { validateAppData } from "../utils/validation";
-import { navigateToPage } from "./browser";
+import {
+  closeBrowserSession,
+  createBrowserSession,
+  navigateToPage,
+} from "./browser";
 import { selectApp } from "./element-handler";
 import { processPageFields, processPageModals } from "./form-processor";
+
+export const processAppsInParallel = async (
+  apps: AppData[],
+  platform: Platform,
+  platformName: string,
+  pageNames: string[],
+  settings: {
+    dry_run: boolean;
+    max_retries: number;
+    timeout: number;
+    max_concurrent: number;
+  },
+  createBrowserSession: () => Promise<any>,
+  closeBrowserSession: (session: any) => Promise<void>,
+  selectedAppIds?: string[]
+): Promise<ProcessingResult[]> => {
+  const filteredApps = filterSelectedApps(apps, selectedAppIds);
+  const { max_concurrent = 3 } = settings;
+
+  // Process apps in batches
+  const results: ProcessingResult[] = [];
+  for (let i = 0; i < filteredApps.length; i += max_concurrent) {
+    const batch = filteredApps.slice(i, i + max_concurrent);
+    const batchPromises = batch.map((app) =>
+      processApp(
+        app,
+        platform,
+        platformName,
+        pageNames,
+        settings,
+        createBrowserSession,
+        closeBrowserSession
+      )
+    );
+
+    const batchResults = await Promise.allSettled(batchPromises);
+    results.push(
+      ...batchResults.flatMap((r) => (r.status === "fulfilled" ? r.value : []))
+    );
+  }
+
+  return results;
+};
+
+export const processPagesInParallel = async (
+  appData: AppData,
+  platform: Platform,
+  platformName: string,
+  pageNames: string[],
+  settings: any
+): Promise<ProcessingResult[]> => {
+  // Create separate browser sessions for each page
+  const pagePromises = pageNames.map(async (pageName) => {
+    const session = await createBrowserSession(platformName as any);
+    try {
+      return await processAppPage(
+        session.page,
+        platform,
+        pageName,
+        appData,
+        settings
+      );
+    } finally {
+      await closeBrowserSession(session);
+    }
+  });
+
+  const results = await Promise.allSettled(pagePromises);
+  return results.map((r) =>
+    r.status === "fulfilled"
+      ? r.value
+      : {
+          app_id: appData.app_id,
+          platform: platformName,
+          page: "unknown",
+          success: false,
+          errors: ["Page processing failed"],
+          processed_fields: [],
+        }
+  );
+};
 
 export const processAppPage = async (
   page: Page,

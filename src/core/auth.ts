@@ -265,16 +265,21 @@ export const validateAuthSession = async (
   platform: "google_play" | "app_store",
   authFile?: string
 ): Promise<boolean> => {
+  let browser: Browser | null = null;
+
   try {
     const authConfig = AUTH_CONFIGS[platform];
+    if (!authConfig) {
+      logger.error(`❌ Unsupported platform: ${platform}`);
+      return false;
+    }
+
     const authPath = authFile || join(process.cwd(), authConfig?.authFile);
 
     if (!existsSync(authPath)) {
       logger.warn(`❌ Auth file not found: ${authPath}`);
       return false;
     }
-
-    let browser: Browser | null = null;
 
     logger.info(`🔍 Validating auth session for ${platform}...`);
 
