@@ -60,6 +60,48 @@ export const storeSettingsPage: Page = {
               ],
             },
           },
+          {
+            name: "save and close group",
+            group: {
+              condition: (page) => {
+                const element = page.locator(
+                  `(//button[@debug-id='main-button' and contains(@class, 'mdc-button--unelevated') and .//span[text()='Save']])[1]`
+                );
+                const isDiable = element.isDisabled();
+                return !isDiable;
+              },
+              fields: [
+                {
+                  name: "Save Button",
+                  action: "click",
+                  fallback: {
+                    xpath: `(//button[@debug-id='main-button' and contains(@class, 'mdc-button--unelevated') and .//span[text()='Save']])[1]`,
+                  },
+                },
+                {
+                  name: "Close Button",
+                  action: "click",
+                  fallback: {
+                    xpath: `//h2[text()='App category']/following::button[@aria-label='Close'][1]`,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            name: "close if save button is disabled",
+            condition: (page) => {
+              const element = page.locator(
+                `(//button[@debug-id='main-button' and contains(@class, 'mdc-button--unelevated') and .//span[text()='Save']])[1]`
+              );
+              const isDiable = element.isDisabled();
+              return isDiable;
+            },
+            action: "click",
+            fallback: {
+              xpath: `//h2[text()='App category']/following::button[@aria-label='Close'][1]`,
+            },
+          },
         ],
       },
     },
@@ -106,13 +148,13 @@ export const storeSettingsPage: Page = {
                     xpath: `//material-input[@debug-id='website-input']//input[@type='text']`,
                   },
                 },
-                // {
-                //   name: "Save Button",
-                //   action: "click",
-                //   fallback: {
-                //     xpath: `//button[@debug-id='main-button' and .//span[text()='Save and publish']]`,
-                //   },
-                // },
+                {
+                  name: "Save Button",
+                  action: "click",
+                  fallback: {
+                    xpath: `//div[contains(@class, 'popup') and .//h2[text()='Store listing contact details']]//button[@class='mdc-button overflowable-button mdc-button--unelevated' and @debug-id='main-button' and .//span[text()='Save']]`,
+                  },
+                },
               ],
             },
           },
