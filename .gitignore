@@ -85,6 +85,7 @@ Thumbs.db
 screenshots/
 generated-assets/
 
+.browser-data/
 /auth-data
 /app-store-auth-data
 /google-play-auth-data
