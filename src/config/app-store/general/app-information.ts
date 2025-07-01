@@ -19,9 +19,17 @@ export const appInformation: Page = {
           {
             name: "Primary Category",
             action: "selectOption",
-            default_value: "DEVELOPER_TOOLS",
+            default_value: "FOOD_AND_DRINK",
             fallback: {
               xpath: `//select[@name='primaryCategory']`,
+            },
+          },
+          {
+            name: "Secondary Category",
+            action: "selectOption",
+            default_value: "DEVELOPER_TOOLS",
+            fallback: {
+              xpath: `//select[@name='secondaryCategory']`,
             },
           },
         ],
