@@ -1,13 +1,12 @@
 import type { Platform } from "../../types";
-import { appInformationPage } from "./app-information";
+import { appInformation } from "./general/app-information";
 
 export const appStorePlatform: Platform = {
-  base_url: "https://appstoreconnect.apple.com",
+  base_url: "https://appstoreconnect.apple.com/apps",
   app_mappings: {
-    "366": "com.example.app366",
-    "367": "com.example.app367",
+    "363": "6747702208",
   },
   pages: {
-    app_information: appInformationPage,
+    app_information: appInformation,
   },
 };

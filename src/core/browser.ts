@@ -63,28 +63,38 @@ export const createBrowserSession = async (
       }
     }
 
-    const browserType = platform === "app_store" ? webkit : chromium;
-    const authPath = join(process.cwd(), authFile);
-    const auth_data = join(process.cwd(), "auth-data");
+    const browserType = platform === "app_store" ? chromium : chromium;
+    const auth_data = join(
+      process.cwd(),
+      platform === "app_store"
+        ? process.env.APP_STORE_AUTH_DATA_DIR!
+        : process.env.GOOGLE_PLAY_AUTH_DATA_DIR!
+    );
 
-    const context = await browserType.launchPersistentContext(auth_data, {
-      executablePath: process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
-      headless: false,
-      // viewport: { width: 1280, height: 800 },
-      viewport: null,
-      slowMo: 100,
-      args: [
-        "--disable-blink-features=AutomationControlled",
-        "--start-maximized",
-        // "--start-fullscreen",
-      ],
-      // Move context options here
-      // storageState: authPath,
-      // userAgent:
-      //   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      ignoreHTTPSErrors: true,
-      acceptDownloads: false,
-    });
+    const authPath = authFile;
+    const executablePath =
+      platform === "app_store"
+        ? process.env.APP_STORE_EXECUTABLE_PATH
+        : process.env.GOOGLE_PLAY_EXECUTABLE_PATH;
+
+    // const context = await browserType.launchPersistentContext(auth_data, {
+    //   executablePath: process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
+    //   headless: false,
+    //   // viewport: { width: 1280, height: 800 },
+    //   viewport: null,
+    //   slowMo: 100,
+    //   args: [
+    //     "--disable-blink-features=AutomationControlled",
+    //     "--start-maximized",
+    //     // "--start-fullscreen",
+    //   ],
+    //   // Move context options here
+    //   // storageState: authPath,
+    //   // userAgent:
+    //   //   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    //   ignoreHTTPSErrors: true,
+    //   acceptDownloads: false,
+    // });
 
     //  const browser = await browserType.launch({
     //   executablePath: process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
@@ -106,6 +116,30 @@ export const createBrowserSession = async (
     //   ignoreHTTPSErrors: true,
     //   acceptDownloads: false,
     // });
+
+    const browser = await browserType.launch({
+      executablePath,
+      headless: false,
+      slowMo: 100,
+      args: [
+        "--disable-blink-features=AutomationControlled",
+        "--start-maximized",
+        "--disable-gpu",
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-software-rasterizer",
+        "--disable-setuid-sandbox",
+      ],
+    });
+
+    const context = await browser.newContext({
+      storageState: authPath,
+      viewport: null,
+      userAgent:
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      ignoreHTTPSErrors: true,
+      acceptDownloads: false,
+    });
 
     const page = await context.newPage();
 

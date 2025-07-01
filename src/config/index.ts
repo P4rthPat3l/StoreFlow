@@ -8,7 +8,7 @@ export const config: Config = {
     app_store: appStorePlatform,
   },
   // selected_apps: ["366", "367"],
-  selected_apps: ["366"],
+  selected_apps: ["366", "363"],
   settings: {
     dry_run: false,
     max_retries: 3,
