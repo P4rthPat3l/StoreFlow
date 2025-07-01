@@ -160,47 +160,47 @@ const processPlatform = async (
   const createSession = () =>
     createBrowserSession(platformName as any, { validateAuth: false });
 
-  //* Filter apps based on selection
+  // //* Filter apps based on selection
   const filteredApps = selectedApps?.length
     ? appData.filter((app) => selectedApps.includes(app.app_id))
     : appData;
 
-  //* Parallel apps processing
-  if (parallelOptions?.apps && parallelOptions.apps > 1) {
-    logger.info(
-      `\n Processing apps in parallel with ${parallelOptions.apps} concurrent apps`
-    );
-    return await processAppsInParallel(
-      filteredApps,
-      platform,
-      platformName,
-      validPages,
-      {
-        ...settings,
-        max_concurrent: parallelOptions.apps,
-      },
-      createSession,
-      closeBrowserSession,
-      selectedApps
-    );
-  }
+  // //* Parallel apps processing
+  // if (parallelOptions?.apps && parallelOptions.apps > 1) {
+  //   logger.info(
+  //     `\n Processing apps in parallel with ${parallelOptions.apps} concurrent apps`
+  //   );
+  //   return await processAppsInParallel(
+  //     filteredApps,
+  //     platform,
+  //     platformName,
+  //     validPages,
+  //     {
+  //       ...settings,
+  //       max_concurrent: parallelOptions.apps,
+  //     },
+  //     createSession,
+  //     closeBrowserSession,
+  //     selectedApps
+  //   );
+  // }
 
-  //* Parallel pages processing
-  if (parallelOptions?.pages) {
-    logger.info(`\nProcessing pages in parallel for each app`);
-    const allResults: ProcessingResult[] = [];
-    for (const app of filteredApps) {
-      const results = await processPagesInParallel(
-        app,
-        platform,
-        platformName,
-        validPages,
-        settings
-      );
-      allResults.push(...results);
-    }
-    return allResults;
-  }
+  // //* Parallel pages processing
+  // if (parallelOptions?.pages) {
+  //   logger.info(`\nProcessing pages in parallel for each app`);
+  //   const allResults: ProcessingResult[] = [];
+  //   for (const app of filteredApps) {
+  //     const results = await processPagesInParallel(
+  //       app,
+  //       platform,
+  //       platformName,
+  //       validPages,
+  //       settings
+  //     );
+  //     allResults.push(...results);
+  //   }
+  //   return allResults;
+  // }
 
   //* Fallback to sequential processing
   logger.info(`\nProcessing apps sequentially`);

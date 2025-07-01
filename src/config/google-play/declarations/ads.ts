@@ -1,7 +1,7 @@
 import type { Page } from "../../../types";
 
 export const adsPage: Page = {
-  url_template: "/{app_id}/app-content/ads",
+  url_template: "/{app_id}/app-content/ads-declaration",
   fields: [
     {
       name: "'No, my app does not contain ads' Radio button",

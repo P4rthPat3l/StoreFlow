@@ -31,7 +31,7 @@ export const createBrowserSession = async (
     authFile?: string;
     validateAuth?: boolean;
   } = {}
-): Promise<BrowserSession> => {
+) => {
   const {
     headless = process.env.NODE_ENV === "production",
     authFile = AUTH_FILES[platform],
@@ -76,46 +76,6 @@ export const createBrowserSession = async (
       platform === "app_store"
         ? process.env.APP_STORE_EXECUTABLE_PATH
         : process.env.GOOGLE_PLAY_EXECUTABLE_PATH;
-
-    // const context = await browserType.launchPersistentContext(auth_data, {
-    //   executablePath: process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
-    //   headless: false,
-    //   // viewport: { width: 1280, height: 800 },
-    //   viewport: null,
-    //   slowMo: 100,
-    //   args: [
-    //     "--disable-blink-features=AutomationControlled",
-    //     "--start-maximized",
-    //     // "--start-fullscreen",
-    //   ],
-    //   // Move context options here
-    //   // storageState: authPath,
-    //   // userAgent:
-    //   //   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    //   ignoreHTTPSErrors: true,
-    //   acceptDownloads: false,
-    // });
-
-    //  const browser = await browserType.launch({
-    //   executablePath: process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
-    //   headless,
-    //   slowMo: headless ? 0 : 100,
-    //   args: [
-    //     "--disable-blink-features=AutomationControlled",
-    //     "--disable-web-security",
-    //     "--disable-features=VizDisplayCompositor",
-    //   ],
-    // });
-
-    // const context = await browser.newContext({
-    //   storageState: authPath,
-    //   viewport: { width: 1280, height: 720 },
-    //   userAgent:
-    //     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    //   // Additional context options for better compatibility
-    //   ignoreHTTPSErrors: true,
-    //   acceptDownloads: false,
-    // });
 
     const browser = await browserType.launch({
       executablePath,
@@ -184,11 +144,11 @@ export const closeBrowserSession = async (
 };
 
 export const navigateToPage = async (
-  page: Page,
+  context: BrowserContext,
   baseUrl: string,
   urlTemplate: string,
   appId?: string
-): Promise<void> => {
+): Promise<Page> => {
   try {
     const url = appId
       ? `${baseUrl}${urlTemplate.replace("{app_id}", appId)}`
@@ -196,17 +156,21 @@ export const navigateToPage = async (
 
     logger.info(`🌐 Navigating to: ${url}`);
 
-    await page.goto(url, {
+    const _page = await context.newPage();
+
+    await _page.goto(url, {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
 
     logger.info(`🌐 Navigated to: ${url}`);
-    await page.waitForLoadState("load");
-
-    // await page.waitForLoadState("load");
+    await _page.waitForLoadState("load");
 
     logger.info(`✅ Successfully navigated to page`);
+
+    return _page;
+
+    // await page.waitForLoadState("load");
   } catch (error) {
     logger.error(`❌ Failed to navigate to page`, error);
     throw new Error(`Navigation failed: ${(error as Error).message}`);

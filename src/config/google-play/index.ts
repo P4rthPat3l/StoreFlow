@@ -15,20 +15,22 @@ export const googlePlayPlatform: Platform = {
   base_url:
     "https://play.google.com/console/u/3/developers/5696489665814861362/app",
   app_mappings: {
-    "366": "4972018017227662082",
+    // "366": "4972018017227662082",
     // "367": "4976158818989412534",
+    "368": "4975003404960306836", // test
+    "356": "4975003404960306836", // test
   },
   pages: {
-    main_store_listing: mainStoreListingPage,
-    advertising_id: advertisingIdPage,
+    // main_store_listing: mainStoreListingPage,
+    // advertising_id: advertisingIdPage,
     app_access: appAccessPage,
-    government_apps: governmentApps,
-    data_safety: dataSafetyPage,
-    ads: adsPage,
-    financial_features: financialFeaturesPage,
-    health_apps: healthAppsPage,
-    privacy_policy: privacyPolicyPage,
-    target_audience_and_content: targetAudienceAndContentPage,
-    store_settings: storeSettingsPage,
+    // government_apps: governmentApps,
+    // data_safety: dataSafetyPage,
+    // ads: adsPage,
+    // financial_features: financialFeaturesPage,
+    // health_apps: healthAppsPage,
+    // privacy_policy: privacyPolicyPage,
+    // target_audience_and_content: targetAudienceAndContentPage,
+    // store_settings: storeSettingsPage,
   },
 };

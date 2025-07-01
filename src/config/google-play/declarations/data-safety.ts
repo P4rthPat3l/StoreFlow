@@ -26,11 +26,11 @@ export const dataSafetyPage: Page = {
 
     {
       name: "step 2 'Username and Passoword' Check Box",
-
       action: "check",
       default_value: "true",
-      selector:
-        "div:nth-of-type(2) > div:nth-of-type(1) > material-checkbox > div:nth-of-type(2) > label",
+      fallback: {
+        xpath: `//label[text()='Username and password']/preceding::input[@type='checkbox'][1]`,
+      },
     },
     {
       name: "step 2 'Delete Account Url' Input",
@@ -102,7 +102,7 @@ export const dataSafetyPage: Page = {
       action: "check",
       default_value: "true",
       fallback: {
-        xpath: `//material-checkbox[.//span[text()='Phone number]]//input[@type='checkbox']`,
+        xpath: `//material-checkbox[.//span[text()='Phone number']]//input[@type='checkbox']`,
       },
     },
 

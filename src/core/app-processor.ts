@@ -1,11 +1,12 @@
-import type { Page } from "playwright";
-import type { Platform, AppData, ProcessingResult } from "../types";
+import type { Browser, BrowserContext, Page } from "playwright";
+import type { AppData, Platform, ProcessingResult } from "../types";
 import { logger } from "../utils/logger";
 import { validateAppData } from "../utils/validation";
 import {
   closeBrowserSession,
   createBrowserSession,
   navigateToPage,
+  type BrowserSession,
 } from "./browser";
 import { selectApp } from "./element-handler";
 import { processPageFields, processPageModals } from "./form-processor";
@@ -92,7 +93,7 @@ export const processPagesInParallel = async (
 };
 
 export const processAppPage = async (
-  page: Page,
+  context: BrowserContext,
   platform: Platform,
   pageName: string,
   appData: AppData,
@@ -126,8 +127,8 @@ export const processAppPage = async (
       return result;
     }
 
-    await navigateToPage(
-      page,
+    const _page = await navigateToPage(
+      context,
       platform.base_url,
       pageConfig.url_template,
       platformAppId
@@ -135,7 +136,7 @@ export const processAppPage = async (
 
     if (pageConfig.app_selector) {
       const appSelected = await selectApp(
-        page,
+        _page,
         pageConfig.app_selector,
         platformAppId
       );
@@ -146,7 +147,7 @@ export const processAppPage = async (
     }
 
     const fieldResults = await processPageFields(
-      page,
+      _page,
       pageConfig.fields,
       appData,
       settings.dry_run,
@@ -163,7 +164,7 @@ export const processAppPage = async (
     // Process modals if any
     if (pageConfig.modals && pageConfig.modals.length > 0) {
       const modalResults = await processPageModals(
-        page,
+        _page,
         pageConfig.modals,
         appData,
         settings.dry_run,
@@ -203,21 +204,30 @@ export const processApp = async (
   platformName: string,
   pageNames: string[],
   settings: { dry_run: boolean; max_retries: number; timeout: number },
-  createBrowserSession: () => Promise<any>,
-  closeBrowserSession: (session: any) => Promise<void>
+  createBrowserSession: () => Promise<{
+    browser: Browser;
+    context: BrowserContext;
+    page: Page;
+  }>,
+  closeBrowserSession: (session: BrowserSession) => Promise<void>
 ): Promise<ProcessingResult[]> => {
   const results: ProcessingResult[] = [];
-  let session: any = null;
+  let session: {
+    browser: Browser;
+    context: BrowserContext;
+    page: Page;
+  } | null = null;
 
   try {
     session = await createBrowserSession();
-    const { page } = session;
+    const { page, context } = session;
 
     logger.info(`Processing app ${appData.app_id} on platform ${platformName}`);
+    logger.info(`Processing ${pageNames.length} pages`);
 
     for (const pageName of pageNames) {
       const result = await processAppPage(
-        page,
+        context,
         platform,
         pageName,
         appData,
@@ -265,16 +275,24 @@ export const processMultipleApps = async (
   platformName: string,
   pageNames: string[],
   settings: { dry_run: boolean; max_retries: number; timeout: number },
-  createBrowserSession: () => Promise<any>,
-  closeBrowserSession: (session: any) => Promise<void>,
+  createBrowserSession: () => Promise<{
+    browser: Browser;
+    context: BrowserContext;
+    page: Page;
+  }>,
+  closeBrowserSession: (session: BrowserSession) => Promise<void>,
   selectedAppIds?: string[]
 ): Promise<ProcessingResult[]> => {
+  logger.info(`${apps.length} apps found`);
+  logger.info(`Selected apps are ${JSON.stringify(selectedAppIds)}`);
+
   const filteredApps = filterSelectedApps(apps, selectedAppIds);
   const allResults: ProcessingResult[] = [];
 
   logger.info(
     `Processing ${filteredApps.length} apps on platform ${platformName}`
   );
+  logger.info(`Apps are ${JSON.stringify(filteredApps)}`);
 
   for (const app of filteredApps) {
     const results = await processApp(

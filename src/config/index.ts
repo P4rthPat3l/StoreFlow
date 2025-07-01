@@ -9,7 +9,7 @@ export const config: Config = {
   },
   // selected_apps: ["366", "367"],
   // selected_apps: ["366", "363"],
-  selected_apps: [...Object.keys(appStorePlatform.app_mappings)],
+  selected_apps: [...Object.keys(googlePlayPlatform.app_mappings)],
   settings: {
     dry_run: false,
     max_retries: 3,
