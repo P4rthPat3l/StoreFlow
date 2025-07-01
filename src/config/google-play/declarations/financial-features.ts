@@ -1,6 +1,7 @@
 import type { Page } from "../../../types";
 export const financialFeaturesPage: Page = {
   url_template: "/{app_id}/app-content/financial-features",
+  shouldProcessParallel: true,
   fields: [
     {
       name: "'My app doesn't provide any financial features' Check Box",

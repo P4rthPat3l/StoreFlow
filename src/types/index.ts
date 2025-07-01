@@ -93,6 +93,7 @@ export interface Page {
   app_selector?: AppSelector;
   fields: Field[];
   modals?: Modal[];
+  shouldProcessParallel?: boolean;
 }
 
 export interface Platform {

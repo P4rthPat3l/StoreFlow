@@ -1,6 +1,7 @@
 import type { Page } from "../../../types";
 export const privacyPolicyPage: Page = {
   url_template: "/{app_id}/app-content/privacy-policy",
+  shouldProcessParallel: true,
   fields: [
     {
       name: "Privacy Policy URL",

@@ -1,6 +1,7 @@
 import type { Page } from "../../types";
 
 export const storeSettingsPage: Page = {
+  shouldProcessParallel: true,
   url_template: "/{app_id}/store-settings",
   fields: [
     {

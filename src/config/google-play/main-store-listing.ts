@@ -2,6 +2,7 @@ import type { AppData, Page } from "../../types";
 
 export const mainStoreListingPage: Page = {
   url_template: "/{app_id}/main-store-listing",
+  shouldProcessParallel: true,
   fields: [
     {
       name: "App Name",

@@ -2,6 +2,7 @@ import type { Page } from "../../../types";
 
 export const advertisingIdPage: Page = {
   url_template: "/{app_id}/app-content/ad-id-declaration",
+  shouldProcessParallel: true,
   fields: [
     {
       name: "Advertising ID",

@@ -2,6 +2,7 @@ import type { Page } from "../../../types";
 
 export const governmentApps: Page = {
   url_template: "/{app_id}/app-content/government-apps",
+  shouldProcessParallel: true,
   fields: [
     {
       name: "Government apps Radio Button",

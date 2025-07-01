@@ -5,6 +5,7 @@ import { logger } from "../../../utils/logger";
 
 export const appAccessPage: Page = {
   url_template: "/{app_id}/app-content/testing-credentials",
+  shouldProcessParallel: true,
   fields: [
     {
       name: "All or some functionality in my app is restricted",

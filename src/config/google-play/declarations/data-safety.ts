@@ -2,6 +2,7 @@ import type { Page } from "../../../types";
 
 export const dataSafetyPage: Page = {
   url_template: "/{app_id}/app-content/data-privacy-security",
+  shouldProcessParallel: true,
   fields: [
     {
       name: "Step 1 Next Button",

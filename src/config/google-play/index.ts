@@ -24,7 +24,7 @@ export const googlePlayPlatform: Platform = {
     // main_store_listing: mainStoreListingPage,
     // advertising_id: advertisingIdPage,
     app_access: appAccessPage,
-    // government_apps: governmentApps,
+    government_apps: governmentApps,
     // data_safety: dataSafetyPage,
     // ads: adsPage,
     // financial_features: financialFeaturesPage,

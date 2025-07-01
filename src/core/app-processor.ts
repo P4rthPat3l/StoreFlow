@@ -225,7 +225,37 @@ export const processApp = async (
     logger.info(`Processing app ${appData.app_id} on platform ${platformName}`);
     logger.info(`Processing ${pageNames.length} pages`);
 
+    // Separate pages into parallel and sequential groups
+    const parallelPages: string[] = [];
+    const sequentialPages: string[] = [];
+
     for (const pageName of pageNames) {
+      const pageConfig = platform.pages[pageName];
+      if (pageConfig?.shouldProcessParallel) {
+        parallelPages.push(pageName);
+      } else {
+        sequentialPages.push(pageName);
+      }
+    }
+
+    // Process parallel pages
+    if (parallelPages.length > 0) {
+      logger.info(`Processing ${parallelPages.length} pages in parallel`);
+      const pagePromises = parallelPages.map((pageName) =>
+        processAppPage(context, platform, pageName, appData, settings).then(
+          (result) => {
+            result.platform = platformName;
+            return result;
+          }
+        )
+      );
+
+      const parallelResults = await Promise.all(pagePromises);
+      results.push(...parallelResults);
+    }
+
+    // Process sequential pages
+    for (const pageName of sequentialPages) {
       const result = await processAppPage(
         context,
         platform,
@@ -235,8 +265,6 @@ export const processApp = async (
       );
       result.platform = platformName;
       results.push(result);
-
-      await page.waitForTimeout(3000);
     }
   } catch (error) {
     logger.error(`Error processing app ${appData.app_id}`, error);
@@ -283,8 +311,8 @@ export const processMultipleApps = async (
   closeBrowserSession: (session: BrowserSession) => Promise<void>,
   selectedAppIds?: string[]
 ): Promise<ProcessingResult[]> => {
-  logger.info(`${apps.length} apps found`);
-  logger.info(`Selected apps are ${JSON.stringify(selectedAppIds)}`);
+  // logger.info(`${apps.length} apps found`);
+  // logger.info(`Selected apps are ${JSON.stringify(selectedAppIds)}`);
 
   const filteredApps = filterSelectedApps(apps, selectedAppIds);
   const allResults: ProcessingResult[] = [];
@@ -292,7 +320,7 @@ export const processMultipleApps = async (
   logger.info(
     `Processing ${filteredApps.length} apps on platform ${platformName}`
   );
-  logger.info(`Apps are ${JSON.stringify(filteredApps)}`);
+  // logger.info(`Apps are ${JSON.stringify(filteredApps)}`);
 
   for (const app of filteredApps) {
     const results = await processApp(
