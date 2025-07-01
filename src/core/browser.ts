@@ -67,15 +67,16 @@ export const createBrowserSession = async (
     const authPath = join(process.cwd(), authFile);
     const auth_data = join(process.cwd(), "auth-data");
 
-    const context = await chromium.launchPersistentContext(auth_data, {
+    const context = await browserType.launchPersistentContext(auth_data, {
       executablePath: process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
       headless: false,
       // viewport: { width: 1280, height: 800 },
+      viewport: null,
       slowMo: 100,
       args: [
         "--disable-blink-features=AutomationControlled",
-
         "--start-maximized",
+        // "--start-fullscreen",
       ],
       // Move context options here
       // storageState: authPath,

@@ -13,6 +13,10 @@ export const config: Config = {
     dry_run: false,
     max_retries: 3,
     timeout: 5000,
+    max_concurrent_apps: 1,
+    max_concurrent_pages: 1,
+    enable_parallel_processing: false,
+    browser_pool_size: 1,
   },
 };
 
