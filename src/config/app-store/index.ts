@@ -8,7 +8,7 @@ export const appStorePlatform: Platform = {
   loginCheckUrl:
     /https:\/\/appstoreconnect\.apple\.com\/apps\/\d+\/distribution\/ios\/version\/inflight(\?.*)?$/,
   app_mappings: {
-    "363": "6747702208",
+    "6747702208": "363",
   },
   pages: {
     app_information: appInformation,
