@@ -43,9 +43,9 @@ const parseCommandLineArgs = (): CommandLineArgs => {
       // case "--dry-run":
       //   args.dryRun = true;
       //   break;
-      case "--mock":
-        args.mock = true;
-        break;
+      // case "--mock":
+      //   args.mock = true;
+      //   break;
       case "--parallel-pages":
         args.parallelPages = true;
         break;
@@ -75,16 +75,14 @@ Options:
   --platform <name>     Platform: google_play, app_store, all
   --pages <pages>       Comma-separated pages to process
   --apps <app_ids>      Comma-separated app IDs
-  --dry-run            Test mode (no actual changes)
-  --mock               Use mock data
   --parallel-pages     Process pages in parallel
   --log-level <level>  debug, info, warn, error
   --help, -h           Show this help
 
 Examples:
-  bun run src/main.ts --platform google_play --dry-run
+  bun run src/main.ts --platform google_play
   bun run src/main.ts --platform app_store --apps 366,367
-  bun run src/main.ts --platform all --mock --parallel-pages
+  bun run src/main.ts --platform all --parallel-pages
   `)
   );
 };
@@ -217,7 +215,7 @@ const main = async (): Promise<void> => {
         ),
         apps: args.apps || config.selected_apps || [],
         // dryRun: args.dryRun || false,
-        mock: args.mock || false,
+        // mock: args.mock || false,
         parallelPages: args.parallelPages || false,
       };
     }
@@ -232,9 +230,10 @@ const main = async (): Promise<void> => {
     // }
 
     logger.progress("Fetching app data...");
-    const appData = processingConfig.mock
-      ? getMockAppData()
-      : await fetchAppData();
+    const appData = await fetchAppData();
+    // const appData = processingConfig.mock
+    //   ? getMockAppData()
+    //   : await fetchAppData();
     logger.success(`Loaded ${appData.length} apps`);
 
     const allResults: ProcessingResult[] = [];

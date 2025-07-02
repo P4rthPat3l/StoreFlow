@@ -57,8 +57,6 @@ bun run index.ts \
   --platform google-play \
   --pages "store-listing,pricing" \
   --apps "app1,app2" \
-  --mock \
-  --parallel-pages
 ```
 
 Available options:
@@ -66,7 +64,6 @@ Available options:
 - `--platform`: Target platform (google-play or app-store)
 - `--pages`: Comma-separated list of pages to process
 - `--apps`: Comma-separated list of apps to process
-- `--mock`: Use mock data instead of real API calls
 - `--parallel-pages`: Process pages in parallel
 - `--interactive`: Enable interactive CLI mode
 - `--logLevel`: Set logging level (debug, info, warn, error)
