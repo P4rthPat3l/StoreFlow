@@ -5,6 +5,8 @@ import { pricingAndAvailability } from "./pricing_and_availability";
 
 export const appStorePlatform: Platform = {
   base_url: "https://appstoreconnect.apple.com/apps",
+  loginCheckUrl:
+    /https:\/\/appstoreconnect\.apple\.com\/apps\/\d+\/distribution\/ios\/version\/inflight(\?.*)?$/,
   app_mappings: {
     "363": "6747702208",
   },
