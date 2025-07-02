@@ -37,10 +37,67 @@ bun install
 npm install
 ```
 
-3. Set up authentication:
+3. Set up environment:
 
-- Copy `.env.example` to `.env` and fill in your credentials
-- Configure platform-specific authentication data in `auth-data` directory
+   a. Copy `.env.example` to `.env`:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+````
+
+   b. Update `.env` with your configuration:
+   - API Configuration:
+     ```
+     API_URL=https://manage.sparissimofood.com/api/restaurants/get-app-details
+     API_TIMEOUT=30000
+     ```
+
+   - Browser Configuration:
+     ```
+     BROWSER_HEADLESS=false
+     BROWSER_SLOW_MO=100
+     BROWSER_TIMEOUT=30000
+     ```
+
+   - Authentication:
+     ```
+     AUTH_FILE=auth.json
+     GOOGLE_PLAY_AUTH_FILE=google-play-auth.json
+     APP_STORE_AUTH_FILE=app-store-auth.json
+     ```
+
+   - Logging:
+     ```
+     LOG_LEVEL=info
+     DEBUG=false
+     ```
+
+   - Processing Settings:
+     ```
+     MAX_RETRIES=3
+     PROCESS_DELAY=2000
+     ```
+
+4. Set up authentication:
+
+   a. Run the tool to generate auth files:
+   ```bash
+   bun run index.ts
+````
+
+This will create the following authentication files:
+
+- `auth.json`: Main authentication file
+- `google-play-auth.json`: Google Play authentication
+- `app-store-auth.json`: App Store authentication
+
+b. For platform-specific authentication data:
+
+```bash
+mkdir -p auth-data app-store-auth-data
+```
 
 ## Usage
 
@@ -57,6 +114,7 @@ bun run index.ts \
   --platform google-play \
   --pages "store-listing,pricing" \
   --apps "app1,app2" \
+  --parallel-pages
 ```
 
 Available options:
