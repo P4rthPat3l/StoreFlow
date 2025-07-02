@@ -17,8 +17,9 @@ export const googlePlayPlatform: Platform = {
   app_mappings: {
     // "366": "4972018017227662082",
     // "367": "4976158818989412534",
-    "368": "4975003404960306836", // test
-    "356": "4975003404960306836", // test
+
+    "4975003404960306836": "368", // test
+    "4976158818989412534": "367", // test
   },
   pages: {
     main_store_listing: mainStoreListingPage,

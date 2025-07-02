@@ -1,5 +1,5 @@
 import type { Browser, BrowserContext, Page } from "playwright";
-import type { AppData, Platform, ProcessingResult } from "../types";
+import type { AppData, Config, Platform, ProcessingResult } from "../types";
 import { logger } from "../utils/logger";
 import { validateAppData } from "../utils/validation";
 import {
@@ -10,6 +10,39 @@ import {
 } from "./browser";
 import { selectApp } from "./element-handler";
 import { processPageFields, processPageModals } from "./form-processor";
+
+const getAppDataForGooglePlayApp = (
+  googlePlayAppId: string,
+  platform: Platform,
+  allAppsData: AppData[]
+): AppData | null => {
+  logger.debug(`Found API app mapping for Google Play app: ${googlePlayAppId}`);
+
+  logger.debug(`App mappings: ${JSON.stringify(platform.app_mappings)}`);
+  // Get the API app_id from the mapping
+  const apiAppId = platform.app_mappings[googlePlayAppId];
+  if (!apiAppId) {
+    logger.error(
+      `No API app mapping found for Google Play app: ${googlePlayAppId}`
+    );
+    return null;
+  }
+  logger.debug(`API app_id: ${apiAppId}`);
+  logger.debug(`All apps data: ${JSON.stringify(allAppsData)}`);
+
+  const appData = allAppsData.find((app) => app.app_id === apiAppId);
+  if (!appData) {
+    logger.error(`No app data found for API app_id: ${apiAppId}`);
+    return null;
+  }
+
+  // Return app data with Google Play app ID for processing
+  return {
+    ...appData,
+    google_play_app_id: googlePlayAppId, // Add this for reference
+    original_app_id: apiAppId, // Keep original for reference
+  };
+};
 
 export const processAppsInParallel = async (
   apps: AppData[],
@@ -66,7 +99,7 @@ export const processPagesInParallel = async (
     const session = await createBrowserSession(platformName as any);
     try {
       return await processAppPage(
-        session.page,
+        session.context,
         platform,
         pageName,
         appData,
@@ -96,11 +129,11 @@ export const processAppPage = async (
   context: BrowserContext,
   platform: Platform,
   pageName: string,
-  appData: AppData,
-  settings: { dry_run: boolean; max_retries: number; timeout: number }
+  appData: AppData & { google_play_app_id?: string },
+  settings: Config["settings"]
 ): Promise<ProcessingResult> => {
   const result: ProcessingResult = {
-    app_id: appData.app_id,
+    app_id: appData.google_play_app_id || appData.app_id, // Use Google Play ID for result
     platform: "unknown",
     page: pageName,
     success: false,
@@ -121,9 +154,17 @@ export const processAppPage = async (
       return result;
     }
 
-    const platformAppId = platform.app_mappings[appData.app_id];
-    if (!platformAppId) {
-      result.errors.push(`App mapping not found for app_id: ${appData.app_id}`);
+    // Use Google Play app ID directly (it's the key now)
+    const googlePlayAppId =
+      appData.google_play_app_id ||
+      Object.keys(platform.app_mappings).find(
+        (key) => platform.app_mappings[key] === appData.app_id
+      );
+
+    if (!googlePlayAppId) {
+      result.errors.push(
+        `Google Play app ID not found for app_id: ${appData.app_id}`
+      );
       return result;
     }
 
@@ -131,14 +172,14 @@ export const processAppPage = async (
       context,
       platform.base_url,
       pageConfig.url_template,
-      platformAppId
+      googlePlayAppId
     );
 
     if (pageConfig.app_selector) {
       const appSelected = await selectApp(
         _page,
         pageConfig.app_selector,
-        platformAppId
+        googlePlayAppId
       );
       if (!appSelected) {
         result.errors.push("Failed to select app");
@@ -150,7 +191,7 @@ export const processAppPage = async (
       _page,
       pageConfig.fields,
       appData,
-      settings.dry_run,
+      // settings.dry_run,
       settings.max_retries
     );
 
@@ -203,7 +244,7 @@ export const processApp = async (
   platform: Platform,
   platformName: string,
   pageNames: string[],
-  settings: { dry_run: boolean; max_retries: number; timeout: number },
+  settings: Config["settings"],
   createBrowserSession: () => Promise<{
     browser: Browser;
     context: BrowserContext;
@@ -249,6 +290,8 @@ export const processApp = async (
           }
         )
       );
+
+      logger.info(`Processing ${parallelPages.length} pages in parallel`);
 
       const parallelResults = await Promise.all(pagePromises);
       results.push(...parallelResults);
@@ -302,27 +345,59 @@ export const processMultipleApps = async (
   platform: Platform,
   platformName: string,
   pageNames: string[],
-  settings: { dry_run: boolean; max_retries: number; timeout: number },
+  settings: Config["settings"],
   createBrowserSession: () => Promise<{
     browser: Browser;
     context: BrowserContext;
     page: Page;
   }>,
   closeBrowserSession: (session: BrowserSession) => Promise<void>,
-  selectedAppIds?: string[]
+  selectedGooglePlayAppIds?: string[]
 ): Promise<ProcessingResult[]> => {
-  // logger.info(`${apps.length} apps found`);
-  // logger.info(`Selected apps are ${JSON.stringify(selectedAppIds)}`);
+  const appsToProcess: (AppData & { google_play_app_id: string })[] = [];
 
-  const filteredApps = filterSelectedApps(apps, selectedAppIds);
-  const allResults: ProcessingResult[] = [];
+  if (selectedGooglePlayAppIds?.length) {
+    for (const googlePlayAppId of selectedGooglePlayAppIds) {
+      const appData = getAppDataForGooglePlayApp(
+        googlePlayAppId,
+        platform,
+        apps
+      );
+      if (appData) {
+        appsToProcess.push({
+          ...appData,
+          google_play_app_id: googlePlayAppId,
+        });
+      }
+    }
+  } else {
+    // Process all mapped apps
+    for (const googlePlayAppId of Object.keys(platform.app_mappings)) {
+      const appData = getAppDataForGooglePlayApp(
+        googlePlayAppId,
+        platform,
+        apps
+      );
+      if (appData) {
+        appsToProcess.push({
+          ...appData,
+          google_play_app_id: googlePlayAppId,
+        });
+      }
+    }
+  }
 
   logger.info(
-    `Processing ${filteredApps.length} apps on platform ${platformName}`
+    `Processing ${appsToProcess.length} Google Play apps on platform ${platformName}`
   );
-  // logger.info(`Apps are ${JSON.stringify(filteredApps)}`);
 
-  for (const app of filteredApps) {
+  const allResults: ProcessingResult[] = [];
+
+  for (const app of appsToProcess) {
+    logger.info(
+      `Processing Google Play app: ${app.google_play_app_id} (using API data from: ${app.app_id})`
+    );
+
     const results = await processApp(
       app,
       platform,

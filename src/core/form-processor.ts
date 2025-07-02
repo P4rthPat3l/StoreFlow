@@ -12,8 +12,8 @@ import {
 export const processField = async (
   page: Page,
   field: Field,
-  appData: AppData,
-  dryRun: boolean = false
+  appData: AppData
+  // dryRun: boolean = false
 ): Promise<boolean> => {
   // if (
   //   "pre_conditions" in field ||
@@ -49,10 +49,10 @@ export const processField = async (
     return false;
   }
 
-  if (dryRun) {
-    logger.info(`[DRY RUN] Would fill ${field.api_key} with: ${value}`);
-    return true;
-  }
+  // if (dryRun) {
+  //   logger.info(`[DRY RUN] Would fill ${field.api_key} with: ${value}`);
+  //   return true;
+  // }
 
   const element = await findElement(page, field);
   if (!element) {
@@ -68,7 +68,12 @@ export const processField = async (
   const success = await fillElement(element, field, value, page);
 
   if (success && field.conditionals) {
-    await processConditionals(page, field.conditionals, appData, dryRun);
+    await processConditionals(
+      page,
+      field.conditionals,
+      appData
+      //  dryRun
+    );
   }
 
   return success;
@@ -77,8 +82,8 @@ export const processField = async (
 export const processConditionals = async (
   page: Page,
   conditionals: Conditional[],
-  appData: AppData,
-  dryRun: boolean = false
+  appData: AppData
+  // dryRun: boolean = false
 ): Promise<void> => {
   for (const conditional of conditionals) {
     const conditionValue = appData[conditional.if_checked];
@@ -89,7 +94,12 @@ export const processConditionals = async (
       );
 
       for (const field of conditional.fields) {
-        await processField(page, field, appData, dryRun);
+        await processField(
+          page,
+          field,
+          appData
+          //  dryRun
+        );
       }
     }
   }
@@ -123,7 +133,12 @@ export const processModal = async (
     // Process modal fields
     let allFieldsProcessed = true;
     for (const field of modal.fields) {
-      const success = await processField(page, field, appData, dryRun);
+      const success = await processField(
+        page,
+        field,
+        appData
+        // dryRun
+      );
       if (!success) {
         allFieldsProcessed = false;
       }
@@ -170,7 +185,7 @@ export const processPageFields = async (
   page: Page,
   fields: Field[],
   appData: AppData,
-  dryRun: boolean = false,
+  // dryRun: boolean = false,
   maxRetries: number = 3
 ): Promise<{ processed: string[]; failed: string[] }> => {
   const processed: string[] = [];
@@ -196,7 +211,7 @@ export const processPageFields = async (
           page,
           field.group.fields,
           appData,
-          dryRun,
+          // dryRun,
           maxRetries
         );
 
@@ -219,7 +234,12 @@ export const processPageFields = async (
             return true; // Not a failure, just skipped
           }
         }
-        return processField(page, field, appData, dryRun);
+        return processField(
+          page,
+          field,
+          appData
+          // dryRun
+        );
       }, maxRetries);
 
       if (success) {

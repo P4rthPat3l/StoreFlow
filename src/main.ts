@@ -2,7 +2,7 @@ import { config } from "./config";
 import { processMultipleApps } from "./core/app-processor";
 import { closeBrowserSession, createBrowserSession } from "./core/browser";
 import { fetchAppData, getMockAppData } from "./services/api";
-import type { ProcessingResult } from "./types";
+import type { Config, ProcessingResult } from "./types";
 import { logger } from "./utils/logger";
 import { runInteractiveCLI } from "./cli/interactive";
 import chalk from "chalk";
@@ -11,7 +11,7 @@ interface CommandLineArgs {
   platform?: string;
   pages?: string[];
   apps?: string[];
-  dryRun?: boolean;
+  // dryRun?: boolean;
   mock?: boolean;
   help?: boolean;
   parallelPages?: boolean;
@@ -40,9 +40,9 @@ const parseCommandLineArgs = (): CommandLineArgs => {
       case "--apps":
         args.apps = argv[++i]?.split(",") || [];
         break;
-      case "--dry-run":
-        args.dryRun = true;
-        break;
+      // case "--dry-run":
+      //   args.dryRun = true;
+      //   break;
       case "--mock":
         args.mock = true;
         break;
@@ -145,7 +145,7 @@ const processPlatform = async (
   platformName: string,
   pageNames: string[],
   appData: any[],
-  settings: any,
+  settings: Config["settings"],
   selectedApps?: string[]
 ): Promise<ProcessingResult[]> => {
   const platform = config.platforms[platformName];
@@ -162,12 +162,14 @@ const processPlatform = async (
     );
   }
 
-  const createSession = () => createBrowserSession(platformName as any);
-  const filteredApps = selectedApps?.length
-    ? appData.filter((app) => selectedApps.includes(app.app_id))
-    : appData;
+  const createSession = () =>
+    createBrowserSession(platformName as any, { validateAuth: false });
+  const filteredApps = appData;
+  // ? appData.filter((app) => selectedApps.includes(app.app_id))
+  // : appData;
 
   logger.progress(`Processing ${filteredApps.length} apps on ${platformName}`);
+  logger.debug(`Filtered apps: ${JSON.stringify(filteredApps)}`);
 
   return await processMultipleApps(
     filteredApps,
@@ -214,7 +216,7 @@ const main = async (): Promise<void> => {
           ])
         ),
         apps: args.apps || config.selected_apps || [],
-        dryRun: args.dryRun || false,
+        // dryRun: args.dryRun || false,
         mock: args.mock || false,
         parallelPages: args.parallelPages || false,
       };
@@ -222,12 +224,12 @@ const main = async (): Promise<void> => {
 
     const settings = {
       ...config.settings,
-      dry_run: processingConfig.dryRun,
+      // dry_run: processingConfig.dryRun,
     };
 
-    if (settings.dry_run) {
-      logger.warn("DRY RUN MODE - No actual changes will be made");
-    }
+    // if (settings.dry_run) {
+    //   logger.warn("DRY RUN MODE - No actual changes will be made");
+    // }
 
     logger.progress("Fetching app data...");
     const appData = processingConfig.mock
@@ -236,6 +238,12 @@ const main = async (): Promise<void> => {
     logger.success(`Loaded ${appData.length} apps`);
 
     const allResults: ProcessingResult[] = [];
+
+    logger.info(
+      `Processing ${
+        processingConfig.apps.length
+      } apps on ${processingConfig.platforms.join(", ")}`
+    );
 
     for (const platformName of processingConfig.platforms) {
       try {

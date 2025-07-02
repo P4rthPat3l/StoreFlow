@@ -11,7 +11,7 @@ export const config: Config = {
   // selected_apps: ["366", "363"],
   selected_apps: [...Object.keys(googlePlayPlatform.app_mappings)],
   settings: {
-    dry_run: false,
+    // dry_run: false,
     max_retries: 3,
     timeout: 5000,
     max_concurrent_apps: 1,

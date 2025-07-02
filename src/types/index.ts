@@ -106,7 +106,7 @@ export interface Config {
   platforms: Record<string, Platform>;
   selected_apps?: string[];
   settings: {
-    dry_run: boolean;
+    // dry_run: boolean;
     max_retries: number;
     timeout: number;
 
