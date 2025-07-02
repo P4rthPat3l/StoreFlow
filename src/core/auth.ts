@@ -117,7 +117,8 @@ export const createInitialBrowserSession = async (
 
 export const performManualLogin = async (
   platform: "google_play" | "app_store",
-  headless: boolean = false
+  headless: boolean = false,
+  loginCheckUrl?: RegExp
 ): Promise<boolean> => {
   const authConfig = AUTH_CONFIGS[platform];
   let browser: Browser | null = null;
@@ -146,7 +147,11 @@ export const performManualLogin = async (
       timeout: 60000,
     });
 
-    const isAlreadyLoggedIn = await checkIfLoggedIn(page, authConfig);
+    const isAlreadyLoggedIn = await checkIfLoggedIn(
+      page,
+      authConfig,
+      loginCheckUrl
+    );
     if (isAlreadyLoggedIn) {
       logger.info(`✅ Already logged in to ${platform}`);
       await saveAuthSession(context, authConfig);
@@ -190,18 +195,16 @@ Waiting for login completion...
 
 const checkIfLoggedIn = async (
   page: any,
-  authConfig: AuthConfig
+  authConfig: AuthConfig,
+  loginCheckUrl?: RegExp
 ): Promise<boolean> => {
   try {
     for (const indicator of authConfig.successIndicators) {
       try {
         // await page.waitForSelector(indicator, { timeout: 3000 });
-        await page.waitForURL(
-          "https://play.google.com/console/u/0/developers/",
-          {
-            timeout: 60000,
-          }
-        );
+        await page.waitForURL(loginCheckUrl, {
+          timeout: 60000,
+        });
         logger.info(`✅ Found login success indicator: ${indicator}`);
         return true;
       } catch {
@@ -313,14 +316,21 @@ export const validateAuthSession = async (
   }
 };
 
-export const setupAuthentication = async (
-  platform: "google_play" | "app_store",
-  force: boolean = false
-): Promise<boolean> => {
-  logger.info(`🔧 Setting up authentication for ${platform}...`);
+export const setupAuthentication = async ({
+  platform,
+  force = false,
+  authFile,
+  loginCheckUrl,
+}: {
+  platform: "google_play" | "app_store";
+  force?: boolean;
+  authFile?: string;
+  loginCheckUrl?: RegExp;
+}): Promise<boolean> => {
+  logger.warn(`🔧 Setting up authentication for ${platform}...`);
 
   if (!force && checkAuthFile(platform)) {
-    const isValid = await validateAuthSession(platform);
+    const isValid = await validateAuthSession(platform, authFile);
     if (isValid) {
       logger.info(`✅ Existing authentication is valid for ${platform}`);
       return true;
@@ -331,7 +341,7 @@ export const setupAuthentication = async (
     }
   }
 
-  const success = await performManualLogin(platform, false);
+  const success = await performManualLogin(platform, false, loginCheckUrl);
 
   if (success) {
     logger.info(`🎉 Authentication setup complete for ${platform}!`);

@@ -12,6 +12,7 @@ import {
   setupAuthentication,
 } from "./auth";
 import { join } from "path";
+import { config } from "../config";
 
 export interface BrowserSession {
   browser: Browser;
@@ -43,9 +44,14 @@ export const createBrowserSession = async (
 
     if (!checkAuthFile(platform)) {
       logger.warn(`❌ No authentication found for ${platform}`);
-      logger.info(`🔧 Starting authentication setup...`);
+      logger.warn(`🔧 Starting authentication setup...`);
 
-      const authSuccess = await setupAuthentication(platform);
+      const authSuccess = await setupAuthentication({
+        platform,
+        loginCheckUrl: config.platforms[platform]?.loginCheckUrl,
+        force: false,
+        authFile,
+      });
       if (!authSuccess) {
         throw new Error(`Authentication setup failed for ${platform}`);
       }
@@ -56,7 +62,11 @@ export const createBrowserSession = async (
       const isValid = await validateAuthSession(platform, authFile);
       if (!isValid) {
         logger.warn(`⚠️ Invalid authentication session, re-authenticating...`);
-        const authSuccess = await setupAuthentication(platform, true);
+        const authSuccess = await setupAuthentication({
+          platform,
+          force: true,
+          authFile,
+        });
         if (!authSuccess) {
           throw new Error(`Re-authentication failed for ${platform}`);
         }

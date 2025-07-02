@@ -14,6 +14,9 @@ import { mainStoreListingPage } from "./main-store-listing";
 export const googlePlayPlatform: Platform = {
   base_url:
     "https://play.google.com/console/u/3/developers/5696489665814861362/app",
+  authFile: process.env.GOOGLE_PLAY_AUTH_FILE,
+  loginCheckUrl:
+    /https:\/\/play\.google\.com\/console\/u\/\d+\/developers\/\d+\/app-list(\?.*)?$/,
   app_mappings: {
     // "366": "4972018017227662082",
     // "367": "4976158818989412534",

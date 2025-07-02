@@ -150,7 +150,10 @@ const main = async (): Promise<void> => {
           .replace("_", " ")
           .toUpperCase()}`
       );
-      const success = await setupAuthentication(args.platform, args.force);
+      const success = await setupAuthentication({
+        platform: args.platform,
+        force: args.force,
+      });
 
       if (success) {
         logger.info(`\n🎉 Authentication setup completed successfully!`);

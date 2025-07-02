@@ -161,7 +161,10 @@ const processPlatform = async (
   }
 
   const createSession = () =>
-    createBrowserSession(platformName as any, { validateAuth: false });
+    createBrowserSession(platformName as any, {
+      validateAuth: false,
+      authFile: platform.authFile,
+    });
   const filteredApps = appData;
   // ? appData.filter((app) => selectedApps.includes(app.app_id))
   // : appData;
