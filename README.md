@@ -43,23 +43,6 @@ A TypeScript-based automation tool built with Bun and Playwright for streamlinin
    bun run src/main.ts --platform google_play --pages data_safety
    ```
 
-5. **Parallel Processing**:
-
-   ```bash
-   # Process 5 apps in parallel
-   bun run src/main.ts --platform google_play --parallel-apps 5
-
-   # Process pages in parallel for each app
-   bun run src/main.ts --platform google_play --parallel-pages
-
-   # Combine both (3 apps in parallel, each with parallel pages)
-   bun run src/main.ts --platform google_play --parallel-apps 3 --parallel-pages
-
-   # Set maximum concurrent operations
-   bun run src/main.ts --platform all --max-concurrent 10
-
-   ```
-
 ## Usage Examples
 
 ```bash
