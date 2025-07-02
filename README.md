@@ -1,83 +1,126 @@
-# App Store Automation Tool
+# AppFlowSync
 
-A TypeScript-based automation tool built with Bun and Playwright for streamlining app submission processes across Google Play Console and App Store Connect.
+Automated application synchronization tool for managing app data across different platforms (Google Play and App Store).
 
 ## Features
 
-- 🚀 **Multi-Platform Support**: Google Play Console and App Store Connect
-- 🔧 **Modular Architecture**: Easily extensible for new platforms
-- 🛡️ **Type Safety**: Full TypeScript support with strict types
-- 🔄 **Retry Logic**: Robust error handling with configurable retries
-- 🎯 **Selective Processing**: Process specific apps and pages
-- 🧪 **Dry Run Mode**: Test without making actual changes
-- 📊 **Detailed Reporting**: Comprehensive processing summaries
+- Automated synchronization of app data between platforms
+- Interactive CLI interface for manual control
+- Parallel processing capabilities
+- Browser automation using Playwright
+- Configurable settings for each platform
+- Comprehensive logging and error handling
+- Mock data support for testing
 
-## Quick Start
+## Requirements
 
-1. **Install dependencies**:
+- Node.js (latest LTS version)
+- Bun (recommended) or npm
+- TypeScript ^5
+- Playwright ^1.53.1
+- Sharp ^0.34.2
 
-   ```bash
-   bun install
-   ```
+## Installation
 
-2. **Set up authentication**:
-
-   - Run the tool once to create auth sessions
-   - Manual login will be required for first-time setup
-
-3. **Configure your apps**:
-
-   - Update `src/config/google-play/index.ts` with your app mappings
-   - Update `src/config/app-store/index.ts` with your app mappings
-
-4. **Run the tool**:
-
-   ```bash
-   # Process all apps on Google Play
-   bun run src/main.ts --platform google_play
-
-   # Dry run for specific apps
-   bun run src/main.ts --platform google_play --apps 366,367 --dry-run
-
-   # Process specific pages
-   bun run src/main.ts --platform google_play --pages data_safety
-   ```
-
-## Usage Examples
+1. Clone the repository:
 
 ```bash
-# Process all platforms
-bun run src/main.ts --platform all
-
-# Use mock data for testing
-bun run src/main.ts --platform google_play --mock --dry-run
-
-# Process specific apps and pages
-bun run src/main.ts --platform app_store --apps 366 --pages app_information
+git clone https://github.com/yourusername/AppFlowSync.git
+cd AppFlowSync
 ```
 
-## Architecture
+2. Install dependencies:
 
-The tool follows functional programming principles with a modular architecture:
+```bash
+bun install
+# or
+npm install
+```
 
-- `src/types/` - Type definitions
-- `src/config/` - Platform-specific configurations
-- `src/core/` - Core processing logic
-- `src/utils/` - Utility functions
-- `src/services/` - External service integrations
+3. Set up authentication:
+
+- Copy `.env.example` to `.env` and fill in your credentials
+- Configure platform-specific authentication data in `auth-data` directory
+
+## Usage
+
+### Command Line Interface
+
+The tool can be run with various command line options:
+
+```bash
+# Basic usage
+bun run index.ts
+
+# With specific options
+bun run index.ts \
+  --platform google-play \
+  --pages "store-listing,pricing" \
+  --apps "app1,app2" \
+  --mock \
+  --parallel-pages
+```
+
+Available options:
+
+- `--platform`: Target platform (google-play or app-store)
+- `--pages`: Comma-separated list of pages to process
+- `--apps`: Comma-separated list of apps to process
+- `--mock`: Use mock data instead of real API calls
+- `--parallel-pages`: Process pages in parallel
+- `--interactive`: Enable interactive CLI mode
+- `--logLevel`: Set logging level (debug, info, warn, error)
+
+### Interactive Mode
+
+Run the tool without any arguments to enter interactive mode:
+
+```bash
+bun run index.ts
+```
+
+The interactive mode will guide you through:
+
+1. Platform selection
+2. Page selection
+3. App selection
+4. Processing options
 
 ## Configuration
 
-Each platform has its own configuration structure:
+The tool uses configuration files located in the `src/config` directory:
 
-- **Pages**: Define URL templates and form fields
-- **Fields**: Specify selectors, actions, and validation
-- **Modals**: Handle dynamic pop-ups and forms
-- **App Mappings**: Map API app IDs to platform-specific IDs
+- `google-play/index.ts`: Google Play platform configuration
+- `app-store/index.ts`: App Store platform configuration
+
+Platform-specific settings can be configured in the `.env` file and platform-specific auth files.
+
+## Development
+
+### Running Tests
+
+```bash
+bun test
+# or
+npm test
+```
+
+### Building
+
+```bash
+bun run build
+# or
+npm run build
+```
 
 ## Contributing
 
-1. Follow functional programming principles
-2. Maintain type safety
-3. Add comprehensive error handling
-4. Update documentation for new features
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+MIT License - see LICENSE file for details
