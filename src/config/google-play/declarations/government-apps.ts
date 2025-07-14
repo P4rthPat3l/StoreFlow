@@ -11,5 +11,13 @@ export const governmentApps: Page = {
         xpath: `//*[@id="main-content"]/div[1]/div/div[1]/page-router-outlet/page-wrapper/div/app-content-government-apps-page/console-form/console-block-1-column/div/div/console-form-row/div/div/div[1]/material-radio-group/material-radio[2]`,
       },
     },
+    //! uncomment this at the end
+    {
+      name: "Save Button",
+      action: "click",
+      fallback: {
+        xpath: `//button[@debug-id='main-button']`,
+      },
+    },
   ],
 };

@@ -78,11 +78,13 @@ export const mainStoreListingPage: Page = {
 
       //   validation: /^.{1,50}$/,
     },
-    // {
-    //   api_key: "app_description",
-    //   selector: 'textarea[name="app_description"]',
-    //   action: "setText",
-    //   validation: /^.{1,4000}$/,
-    // },
+    //! uncomment this at the end
+    {
+      name: "Save Button",
+      action: "click",
+      fallback: {
+        xpath: `//button[@debug-id='main-button' and .//span[text()='Save']]`,
+      },
+    },
   ],
 };

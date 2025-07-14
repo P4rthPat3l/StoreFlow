@@ -25,11 +25,11 @@ export const googlePlayPlatform: Platform = {
     // "4976158818989412534": "367", // test
   },
   pages: {
-    main_store_listing: mainStoreListingPage,
-    advertising_id: advertisingIdPage,
-    app_access: appAccessPage,
-    government_apps: governmentApps,
+    main_store_listing: mainStoreListingPage, // done
+    advertising_id: advertisingIdPage, // done
+    app_access: appAccessPage, // done
     data_safety: dataSafetyPage,
+    government_apps: governmentApps, // done
     ads: adsPage,
     financial_features: financialFeaturesPage,
     health_apps: healthAppsPage,

@@ -137,18 +137,40 @@ export const appAccessPage: Page = {
             },
           },
           {
-            name: "'No other information is required to access my app'",
+            name: "'No other information is required to access my app' checkbox",
             action: "check",
             default_value: "true",
             selector:
               'material-checkbox[debug-id="no-additional-details-required-checkbox"] input.mdc-checkbox__native-control',
           },
           //! uncomment this at the end
+          //* if button is disable then clikc on close and clikc on add
           {
             name: "Add Button",
             action: "click",
+            condition: async (page, appData) => {
+              const element = page.locator(
+                `//button[@debug-id='apply-button' and .//span[normalize-space()='Add']]`
+              );
+
+              return !element.isDisabled();
+            },
             fallback: {
               xpath: `//*[@id="default-acx-overlay-container"]/div[2]/div/focus-trap/div[2]/relative-popup/div/span/div/div[2]/form-bottom-bar/bottom-bar-base/div/div/div/div[2]/console-button-set/div/button[1]/material-ripple`,
+            },
+          },
+          {
+            name: "Close Button",
+            action: "click",
+            condition: async (page, appData) => {
+              const element = page.locator(
+                `//button[@debug-id='apply-button' and .//span[normalize-space()='Add']]`
+              );
+
+              return element.isDisabled();
+            },
+            fallback: {
+              xpath: `//button[@aria-label='Close']`,
             },
           },
         ],
