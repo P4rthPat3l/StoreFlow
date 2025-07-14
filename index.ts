@@ -23,7 +23,7 @@ async function authenticate() {
   const page = await browser.newPage();
 
   try {
-    console.log("Please sign in to YouTube manually...");
+    console.log("Please sign in to google manually...");
     await page.goto(GOOGLE_PLAY_CONSOLE_URL);
 
     // Wait for user to complete sign in (up to 5 minutes)
