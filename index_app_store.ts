@@ -3,7 +3,6 @@ import { chromium, type Browser, type BrowserContext } from "playwright";
 
 // Configuration
 const AUTH_FILE = process.env.APP_STORE_AUTH_FILE || "app-store-auth.json";
-const YOUTUBE_URL = "https://www.youtube.com/";
 
 const GOOGLE_PLAY_CONSOLE_URL = "https://appstoreconnect.apple.com/login";
 const APP_LIST_URL_PATTERN =

@@ -7,6 +7,7 @@ import {
 import { logger } from "../utils/logger";
 import { existsSync } from "fs";
 import { join } from "path";
+import { platform } from "os";
 
 export interface AuthConfig {
   platform: "google_play" | "app_store";
@@ -49,7 +50,8 @@ const AUTH_CONFIGS: Record<string, AuthConfig> = {
     platform: "app_store",
     authFile: "app-store-auth.json",
     loginUrl: "https://appstoreconnect.apple.com",
-    successUrl: /appstoreconnect\.apple\.com/,
+    successUrl:
+      /https:\/\/appstoreconnect\.apple\.com\/apps\/\d+\/distribution\/ios\/version\/inflight/,
     successIndicators: [
       "text=My Apps",
       "text=App Store Connect",
@@ -71,15 +73,15 @@ export const checkAuthFile = (
   platform: "google_play" | "app_store"
 ): boolean => {
   const authConfig = AUTH_CONFIGS[platform];
-  const authPath = join(process.cwd(), authConfig.authFile);
+  const authPath = join(process.cwd(), authConfig?.authFile);
   logger.info(`🔍 Checking auth file for ${platform}: ${authPath}`);
   const exists = existsSync(authPath);
 
   if (exists) {
-    logger.info(`✅ Auth file found for ${platform}: ${authConfig.authFile}`);
+    logger.info(`✅ Auth file found for ${platform}: ${authConfig?.authFile}`);
   } else {
     logger.warn(
-      `❌ Auth file not found for ${platform}: ${authConfig.authFile}`
+      `❌ Auth file not found for ${platform}: ${authConfig?.authFile}`
     );
   }
 
@@ -90,9 +92,6 @@ export const createInitialBrowserSession = async (
   platform: "google_play" | "app_store",
   headless: boolean = false
 ): Promise<{ browser: Browser; context: BrowserContext }> => {
-  const authConfig = AUTH_CONFIGS[platform];
-  const browserType = platform === "app_store" ? webkit : chromium;
-
   logger.info(`🚀 Creating initial browser session for ${platform}`);
 
   const userDataDir = "./auth-data";
@@ -125,23 +124,25 @@ export const performManualLogin = async (
   let context: BrowserContext | null = null;
 
   try {
-    logger.info(`🔐 Starting manual login process for ${platform}`);
-    logger.info(
-      `📝 You will need to manually log in to: ${authConfig.loginUrl}`
+    console.log(`🔐 Starting manual login process for ${platform}`);
+    console.log(
+      `📝 You will need to manually log in to: ${authConfig?.loginUrl}`
     );
 
     const session = await createInitialBrowserSession(platform, headless);
     browser = session.browser;
     context = session.context;
 
+    console.log("before new pag ");
     const page = await context.newPage();
+    console.log("after new pag ");
 
     if (!authConfig?.loginUrl) {
       logger.error(`❌ Login URL not found for ${platform}`);
       return false;
     }
 
-    logger.info(`🌐 Navigating to: ${authConfig?.loginUrl}`);
+    console.log(`🌐 Navigating to: ${authConfig?.loginUrl}`);
     await page.goto(authConfig?.loginUrl, {
       waitUntil: "networkidle",
       timeout: 60000,
@@ -150,7 +151,8 @@ export const performManualLogin = async (
     const isAlreadyLoggedIn = await checkIfLoggedIn(
       page,
       authConfig,
-      loginCheckUrl
+      loginCheckUrl,
+      platform
     );
     if (isAlreadyLoggedIn) {
       logger.info(`✅ Already logged in to ${platform}`);
@@ -196,14 +198,15 @@ Waiting for login completion...
 const checkIfLoggedIn = async (
   page: any,
   authConfig: AuthConfig,
-  loginCheckUrl?: RegExp
+  loginCheckUrl?: RegExp,
+  platform: "google_play" | "app_store" = "google_play"
 ): Promise<boolean> => {
   try {
     for (const indicator of authConfig.successIndicators) {
       try {
         // await page.waitForSelector(indicator, { timeout: 3000 });
-        await page.waitForURL(loginCheckUrl, {
-          timeout: 60000,
+        await page.waitForURL(authConfig.successUrl, {
+          timeout: 1800000,
         });
         logger.info(`✅ Found login success indicator: ${indicator}`);
         return true;
@@ -329,17 +332,19 @@ export const setupAuthentication = async ({
 }): Promise<boolean> => {
   logger.warn(`🔧 Setting up authentication for ${platform}...`);
 
-  if (!force && checkAuthFile(platform)) {
-    const isValid = await validateAuthSession(platform, authFile);
-    if (isValid) {
-      logger.info(`✅ Existing authentication is valid for ${platform}`);
-      return true;
-    } else {
-      logger.warn(
-        `⚠️ Existing authentication is invalid, re-authenticating...`
-      );
-    }
-  }
+  const authFileExists = checkAuthFile(platform);
+  console.log("authFileExists", authFileExists);
+  // if (checkAuthFile(platform)) {
+  //   const isValid = await validateAuthSession(platform, authFile);
+  //   if (isValid) {
+  //     logger.info(`✅ Existing authentication is valid for ${platform}`);
+  //     return true;
+  //   } else {
+  //     logger.warn(
+  //       `⚠️ Existing authentication is invalid, re-authenticating...`
+  //     );
+  //   }
+  // }
 
   const success = await performManualLogin(platform, false, loginCheckUrl);
 

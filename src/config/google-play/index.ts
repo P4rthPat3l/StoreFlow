@@ -22,7 +22,7 @@ export const googlePlayPlatform: Platform = {
     // "367": "4976158818989412534",
 
     "4975003404960306836": "368", // test
-    "4976158818989412534": "367", // test
+    // "4976158818989412534": "367", // test
   },
   pages: {
     main_store_listing: mainStoreListingPage,

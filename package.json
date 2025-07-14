@@ -3,6 +3,11 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "start": "bun run src/main.ts",
+    "auth-gg": "bun run index.ts",
+    "auth-ios": "bun run index_app_store.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
