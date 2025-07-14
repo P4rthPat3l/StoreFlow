@@ -111,7 +111,7 @@ const validateAllSessions = async (): Promise<void> => {
     logger.info(`\n📱 Checking ${platform.replace("_", " ").toUpperCase()}...`);
 
     if (!checkAuthFile(platform)) {
-      logger.warn(`❌ No auth file found for ${platform}`);
+      console.log(`❌ No auth file found for ${platform}`);
       continue;
     }
 
@@ -119,7 +119,7 @@ const validateAllSessions = async (): Promise<void> => {
     if (isValid) {
       logger.info(`✅ ${platform} session is valid`);
     } else {
-      logger.warn(
+      console.log(
         `❌ ${platform} session is invalid - run setup to re-authenticate`
       );
     }

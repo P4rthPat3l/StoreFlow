@@ -92,7 +92,7 @@ export const fetchImageFromUrl = async (
       logger.info(`Successfully fetched image: ${buffer.length} bytes`);
       return buffer;
     } catch (error) {
-      logger.warn(`Attempt ${attempt} failed:`, error);
+      console.log(`Attempt ${attempt} failed:`, error);
 
       if (attempt === retries) {
         throw new Error(
@@ -309,7 +309,7 @@ export const isValidUploadTarget = async (
 
     return hasDropZoneAttributes;
   } catch (error) {
-    logger.warn("Error checking upload target validity:", error);
+    console.log("Error checking upload target validity:", error);
     return false;
   }
 };
@@ -345,7 +345,7 @@ export const clearUploadZone = async (element: Locator): Promise<void> => {
 
     logger.debug("No clear button found or needed");
   } catch (error) {
-    logger.warn("Error clearing upload zone:", error);
+    console.log("Error clearing upload zone:", error);
   }
 };
 

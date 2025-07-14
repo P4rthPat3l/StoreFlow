@@ -74,13 +74,13 @@ export const appAccessPage: Page = {
               'material-checkbox[debug-id="no-additional-details-required-checkbox"]',
           },
           //! uncomment this at the end
-          // {
-          //   name: "Add Button",
-          //   action: "click",
-          //   fallback: {
-          //     xpath: `//*[@id="default-acx-overlay-container"]/div[2]/div/focus-trap/div[2]/relative-popup/div/span/div/div[2]/form-bottom-bar/bottom-bar-base/div/div/div/div[2]/console-button-set/div/button[1]/material-ripple`,
-          //   },
-          // },
+          {
+            name: "Add Button",
+            action: "click",
+            fallback: {
+              xpath: `//*[@id="default-acx-overlay-container"]/div[2]/div/focus-trap/div[2]/relative-popup/div/span/div/div[2]/form-bottom-bar/bottom-bar-base/div/div/div/div[2]/console-button-set/div/button[1]/material-ripple`,
+            },
+          },
         ],
       },
     },
@@ -144,13 +144,13 @@ export const appAccessPage: Page = {
               'material-checkbox[debug-id="no-additional-details-required-checkbox"] input.mdc-checkbox__native-control',
           },
           //! uncomment this at the end
-          // {
-          //   name: "Add Button",
-          //   action: "click",
-          //   fallback: {
-          //     xpath: `//*[@id="default-acx-overlay-container"]/div[2]/div/focus-trap/div[2]/relative-popup/div/span/div/div[2]/form-bottom-bar/bottom-bar-base/div/div/div/div[2]/console-button-set/div/button[1]/material-ripple`,
-          //   },
-          // },
+          {
+            name: "Add Button",
+            action: "click",
+            fallback: {
+              xpath: `//*[@id="default-acx-overlay-container"]/div[2]/div/focus-trap/div[2]/relative-popup/div/span/div/div[2]/form-bottom-bar/bottom-bar-base/div/div/div/div[2]/console-button-set/div/button[1]/material-ripple`,
+            },
+          },
         ],
       },
     },

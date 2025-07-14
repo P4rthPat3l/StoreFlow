@@ -43,7 +43,7 @@ export const findElement = async (
           );
           return locator;
         } else if (count > 1) {
-          logger.warn(
+          console.log(
             `Multiple elements found for ${field.api_key} using selector: ${selector}`
           );
           return locator.first();
@@ -102,7 +102,7 @@ export const isFieldAlreadyFilled = async (
         return false;
     }
   } catch (error) {
-    logger.warn(`Failed to check if field is filled: ${field.api_key}`, error);
+    console.log(`Failed to check if field is filled: ${field.api_key}`, error);
     return false;
   }
 };
@@ -143,7 +143,7 @@ export const fillElement = async (
         break;
 
       default:
-        logger.warn(`Unknown action: ${field.action}`);
+        console.log(`Unknown action: ${field.action}`);
         return false;
     }
 
@@ -179,7 +179,7 @@ const handleFileUpload = async (
           `Successfully uploaded ${result.successful} files for ${field.api_key}`
         );
       } else {
-        logger.warn(
+        console.log(
           `Upload completed with ${result.failed} failures for ${field.api_key}`
         );
       }

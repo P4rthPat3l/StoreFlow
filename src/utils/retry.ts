@@ -12,7 +12,7 @@ export const withRetry = async <T>(
       return await fn();
     } catch (error) {
       lastError = error as Error;
-      logger.warn(
+      console.log(
         `Attempt ${attempt}/${maxRetries} failed: ${lastError.message}`
       );
 

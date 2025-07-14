@@ -80,7 +80,7 @@ export const checkAuthFile = (
   if (exists) {
     logger.info(`✅ Auth file found for ${platform}: ${authConfig?.authFile}`);
   } else {
-    logger.warn(
+    console.log(
       `❌ Auth file not found for ${platform}: ${authConfig?.authFile}`
     );
   }
@@ -246,7 +246,7 @@ const waitForLoginSuccess = async (
       await new Promise((resolve) => setTimeout(resolve, checkInterval));
       elapsed += checkInterval;
     } catch (error) {
-      logger.warn(`⚠️ Error checking login status:`, error);
+      console.log(`⚠️ Error checking login status:`, error);
     }
   }
 
@@ -283,7 +283,7 @@ export const validateAuthSession = async (
     const authPath = authFile || join(process.cwd(), authConfig?.authFile);
 
     if (!existsSync(authPath)) {
-      logger.warn(`❌ Auth file not found: ${authPath}`);
+      console.log(`❌ Auth file not found: ${authPath}`);
       return false;
     }
 
@@ -305,7 +305,7 @@ export const validateAuthSession = async (
     if (isValid) {
       logger.info(`✅ Auth session is valid for ${platform}`);
     } else {
-      logger.warn(`❌ Auth session is invalid for ${platform}`);
+      console.log(`❌ Auth session is invalid for ${platform}`);
     }
 
     return isValid;
@@ -330,7 +330,7 @@ export const setupAuthentication = async ({
   authFile?: string;
   loginCheckUrl?: RegExp;
 }): Promise<boolean> => {
-  logger.warn(`🔧 Setting up authentication for ${platform}...`);
+  console.log(`🔧 Setting up authentication for ${platform}...`);
 
   const authFileExists = checkAuthFile(platform);
   console.log("authFileExists", authFileExists);
@@ -340,7 +340,7 @@ export const setupAuthentication = async ({
   //     logger.info(`✅ Existing authentication is valid for ${platform}`);
   //     return true;
   //   } else {
-  //     logger.warn(
+  //     console.log(
   //       `⚠️ Existing authentication is invalid, re-authenticating...`
   //     );
   //   }

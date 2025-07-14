@@ -224,7 +224,7 @@ export const processAppPage = async (
         `Successfully processed app ${appData.app_id} on page ${pageName}`
       );
     } else {
-      logger.warn(
+      console.log(
         `Completed processing app ${appData.app_id} on page ${pageName} with errors`
       );
     }

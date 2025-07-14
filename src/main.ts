@@ -229,7 +229,7 @@ const main = async (): Promise<void> => {
     };
 
     // if (settings.dry_run) {
-    //   logger.warn("DRY RUN MODE - No actual changes will be made");
+    //   console.log("DRY RUN MODE - No actual changes will be made");
     // }
 
     logger.progress("Fetching app data...");

@@ -43,8 +43,8 @@ export const createBrowserSession = async (
     logger.info(`🚀 Creating browser session for ${platform}`);
 
     if (!checkAuthFile(platform)) {
-      logger.warn(`❌ No authentication found for ${platform}`);
-      logger.warn(`🔧 Starting authentication setup...`);
+      console.log(`❌ No authentication found for ${platform}`);
+      console.log(`🔧 Starting authentication setup...`);
 
       const authSuccess = await setupAuthentication({
         platform,
@@ -61,7 +61,7 @@ export const createBrowserSession = async (
       logger.info(`🔍 Validating authentication session...`);
       const isValid = await validateAuthSession(platform, authFile);
       if (!isValid) {
-        logger.warn(`⚠️ Invalid authentication session, re-authenticating...`);
+        console.log(`⚠️ Invalid authentication session, re-authenticating...`);
         const authSuccess = await setupAuthentication({
           platform,
           force: true,
@@ -239,7 +239,7 @@ export const createBrowserSessionWithRetry = async (
       return await createBrowserSession(platform, options);
     } catch (error) {
       lastError = error as Error;
-      logger.warn(
+      console.log(
         `⚠️ Session creation attempt ${attempt} failed: ${lastError.message}`
       );
 

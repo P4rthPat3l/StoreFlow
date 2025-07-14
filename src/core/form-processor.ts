@@ -45,7 +45,7 @@ export const processField = async (
 
   // Validate field value
   if (!validateField(field, value)) {
-    logger.warn(`Invalid value for field ${field.api_key}: ${value}`);
+    console.log(`Invalid value for field ${field.api_key}: ${value}`);
     return false;
   }
 
@@ -150,7 +150,7 @@ export const processModal = async (
       await page.waitForTimeout(2000);
       logger.info("Modal processed and saved successfully");
     } else {
-      logger.warn("Some modal fields failed to process");
+      console.log("Some modal fields failed to process");
     }
 
     return allFieldsProcessed;
