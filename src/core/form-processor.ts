@@ -160,27 +160,6 @@ export const processModal = async (
   }
 };
 
-/**
- * Processes a list of fields on a page.
- *
- * For each field, it will:
- * 1. Check if the field has a group property. If it does,
- *    it will recursively call processPageFields on the group's fields.
- * 2. If the field has a condition, it will check the condition.
- *    If the condition is false, it will skip the field.
- * 3. Process the field using processField.
- *
- * Returns a result object with two properties:
- * - processed: an array of strings containing the api_key or name of the successfully processed fields.
- * - failed: an array of strings containing the api_key or name of the fields that failed to process.
- *
- * @param page The page to process the fields on.
- * @param fields The list of fields to process.
- * @param appData The app data to use when processing the fields.
- * @param dryRun Whether to perform a dry run or not.
- * @param maxRetries The maximum number of times to retry processing a field if it fails.
- * @returns A result object with processed and failed arrays.
- */
 export const processPageFields = async (
   page: Page,
   fields: Field[],

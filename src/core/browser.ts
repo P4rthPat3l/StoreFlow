@@ -170,7 +170,7 @@ export const navigateToPage = async (
 
     await _page.goto(url, {
       waitUntil: "domcontentloaded",
-      timeout: 30000,
+      timeout: 90000,
     });
 
     logger.info(`🌐 Navigated to: ${url}`);

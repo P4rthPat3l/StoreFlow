@@ -12,10 +12,25 @@ export const financialFeaturesPage: Page = {
       },
     },
     {
-      name: "Save Button",
+      name: "Next Button",
       action: "click",
       fallback: {
-        xpath: `//*[@id="main-content"]/div[1]/div/div[1]/page-router-outlet/page-wrapper/div/app-content-finance-declaration-page/publishing-bottom-bar/form-bottom-bar/bottom-bar-base/div/div/div/div[2]/console-button-set/div[3]/overflowable-item[3]/button/material-ripple`,
+        xpath: `//button[.//span[text()='Next']]`,
+      },
+    },
+    {
+      name: "Save Button",
+      action: "click",
+      condition: async (page, appData) => {
+        const element = page.locator(`//button[.//span[text()='Save']]`);
+
+        const isDisabled = await element
+          .isDisabled({ timeout: 1000 })
+          .catch(() => false);
+        return !isDisabled;
+      },
+      fallback: {
+        xpath: `//button[.//span[text()='Save']]`,
       },
     },
   ],

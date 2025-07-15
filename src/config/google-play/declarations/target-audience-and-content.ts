@@ -2,6 +2,7 @@ import type { Page } from "../../../types";
 
 export const targetAudienceAndContentPage: Page = {
   url_template: "/{app_id}/app-content/target-audience-content",
+  shouldProcessParallel: true,
   fields: [
     {
       name: "step 1 'Target age'",
@@ -37,8 +38,34 @@ export const targetAudienceAndContentPage: Page = {
       },
     },
     {
-      name: "step 2 'Target audience'",
+      name: "Next Button",
       action: "click",
+      condition: async (page, appData) => {
+        const element = page.locator(`//button[.//span[text()='Next']]`);
+
+        const isDisabled = await element
+          .isDisabled({ timeout: 1000 })
+          .catch(() => false);
+        return !isDisabled;
+      },
+      fallback: {
+        xpath: `//button[.//span[text()='Next']]`,
+      },
+    },
+    {
+      name: "Save Button",
+      action: "click",
+      condition: async (page, appData) => {
+        const element = page.locator(`//button[.//span[text()='Save']]`);
+
+        const isDisabled = await element
+          .isDisabled({ timeout: 1000 })
+          .catch(() => false);
+        return !isDisabled;
+      },
+      fallback: {
+        xpath: `//button[.//span[text()='Save']]`,
+      },
     },
   ],
 };

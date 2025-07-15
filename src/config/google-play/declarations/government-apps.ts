@@ -15,6 +15,10 @@ export const governmentApps: Page = {
     {
       name: "Save Button",
       action: "click",
+      condition(page, appData) {
+        const element = page.locator(`//button[@debug-id='main-button']`);
+        return !element.isDisabled();
+      },
       fallback: {
         xpath: `//button[@debug-id='main-button']`,
       },

@@ -11,12 +11,20 @@ export const privacyPolicyPage: Page = {
         xpath: `//material-input[@debug-id='privacy-policy-url-input']//input[@type='text']`,
       },
     },
-    // {
-    //   name: "Save Button",
-    //   action: "click",
-    //   fallback: {
-    //     xpath: `//*[@id="main-content"]/div[1]/div/div[1]/page-router-outlet/page-wrapper/div/app-content-privacy-policy-page/div/publishing-bottom-bar/form-bottom-bar/bottom-bar-base/div/div/div/div[2]/console-button-set/div[2]/overflowable-item[2]/button/div[2]`,
-    //   },
-    // },
+    {
+      name: "Save Button",
+      action: "click",
+      condition: async (page, appData) => {
+        const element = page.locator(`//button[.//span[text()='Save']]`);
+
+        const isDisabled = await element
+          .isDisabled({ timeout: 1000 })
+          .catch(() => false);
+        return !isDisabled;
+      },
+      fallback: {
+        xpath: `//button[.//span[text()='Save']]`,
+      },
+    },
   ],
 };

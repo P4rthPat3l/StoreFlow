@@ -34,7 +34,7 @@ export const findElement = async (
           `Attempt ${attempt}/${retryAttempts} for ${field.api_key} using selector: ${selector}`
         );
 
-        await locator.waitFor({ state: "visible", timeout: 5000 });
+        await locator.waitFor({ state: "visible", timeout: 30000 });
 
         const count = await locator.count();
         if (count === 1) {

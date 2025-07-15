@@ -149,23 +149,19 @@ export const appAccessPage: Page = {
             name: "Add Button",
             action: "click",
             condition: async (page, appData) => {
-              const element = page.locator(
-                `//button[@debug-id='apply-button' and .//span[normalize-space()='Add']]`
-              );
+              const element = page.locator(`//button[.//span[text()='Add']]`);
 
               return !element.isDisabled();
             },
             fallback: {
-              xpath: `//*[@id="default-acx-overlay-container"]/div[2]/div/focus-trap/div[2]/relative-popup/div/span/div/div[2]/form-bottom-bar/bottom-bar-base/div/div/div/div[2]/console-button-set/div/button[1]/material-ripple`,
+              xpath: `//button[.//span[text()='Add']]`,
             },
           },
           {
             name: "Close Button",
             action: "click",
             condition: async (page, appData) => {
-              const element = page.locator(
-                `//button[@debug-id='apply-button' and .//span[normalize-space()='Add']]`
-              );
+              const element = page.locator(`//button[.//span[text()='Add']]`);
 
               return element.isDisabled();
             },
@@ -179,6 +175,10 @@ export const appAccessPage: Page = {
     {
       name: "Save Button",
       action: "click",
+      condition(page, appData) {
+        const element = page.locator(`//button[.//span[text()='Save']]`);
+        return !element.isDisabled();
+      },
       fallback: {
         xpath: `//button[.//span[text()='Save']]`,
       },

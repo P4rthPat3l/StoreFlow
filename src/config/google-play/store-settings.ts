@@ -63,11 +63,13 @@ export const storeSettingsPage: Page = {
           {
             name: "save and close group",
             group: {
-              condition: (page) => {
+              condition: async (page) => {
                 const element = page.locator(
                   `(//button[@debug-id='main-button' and contains(@class, 'mdc-button--unelevated') and .//span[text()='Save']])[1]`
                 );
-                const isDiable = element.isDisabled();
+                const isDiable = await element
+                  .isDisabled({ timeout: 1000 })
+                  .catch(() => false);
                 return !isDiable;
               },
               fields: [
@@ -90,11 +92,13 @@ export const storeSettingsPage: Page = {
           },
           {
             name: "close if save button is disabled",
-            condition: (page) => {
+            condition: async (page) => {
               const element = page.locator(
                 `(//button[@debug-id='main-button' and contains(@class, 'mdc-button--unelevated') and .//span[text()='Save']])[1]`
               );
-              const isDiable = element.isDisabled();
+              const isDiable = await element
+                .isDisabled({ timeout: 1000 })
+                .catch(() => false);
               return isDiable;
             },
             action: "click",
@@ -151,8 +155,33 @@ export const storeSettingsPage: Page = {
                 {
                   name: "Save Button",
                   action: "click",
+                  condition: async (page) => {
+                    const element = page.locator(
+                      `//div[contains(@class, 'popup') and .//h2[text()='Store listing contact details']]//button[@class='mdc-button overflowable-button mdc-button--unelevated' and @debug-id='main-button' and .//span[text()='Save']]`
+                    );
+                    const isDiable = await element
+                      .isDisabled({ timeout: 1000 })
+                      .catch(() => false);
+                    return !isDiable;
+                  },
                   fallback: {
                     xpath: `//div[contains(@class, 'popup') and .//h2[text()='Store listing contact details']]//button[@class='mdc-button overflowable-button mdc-button--unelevated' and @debug-id='main-button' and .//span[text()='Save']]`,
+                  },
+                },
+                {
+                  name: "close if save button is disabled",
+                  condition: async (page) => {
+                    const element = page.locator(
+                      `//div[contains(@class, 'popup') and .//h2[text()='Store listing contact details']]//button[@class='mdc-button overflowable-button mdc-button--unelevated' and @debug-id='main-button' and .//span[text()='Save']]`
+                    );
+                    const isDiable = await element
+                      .isDisabled({ timeout: 1000 })
+                      .catch(() => false);
+                    return isDiable;
+                  },
+                  action: "click",
+                  fallback: {
+                    xpath: `//h2[text()='Store listing contact details']/following::button[@aria-label='Close'][1]`,
                   },
                 },
               ],

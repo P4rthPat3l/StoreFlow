@@ -14,6 +14,15 @@ export const adsPage: Page = {
     {
       name: "Save Button",
       action: "click",
+      condition: async (page, appData) => {
+        const element = page.locator(
+          `//*[@id="main-content"]/div[1]/div/div[1]/page-router-outlet/page-wrapper/div/app-content-ads-declaration-page/div/publishing-bottom-bar/form-bottom-bar/bottom-bar-base/div/div/div/div[2]/console-button-set/div[2]/overflowable-item[2]/button/div[2]`
+        );
+        const isDisabled = await element
+          .isDisabled({ timeout: 10000 })
+          .catch(() => false);
+        return !isDisabled;
+      },
       fallback: {
         xpath: `//*[@id="main-content"]/div[1]/div/div[1]/page-router-outlet/page-wrapper/div/app-content-ads-declaration-page/div/publishing-bottom-bar/form-bottom-bar/bottom-bar-base/div/div/div/div[2]/console-button-set/div[2]/overflowable-item[2]/button/div[2]`,
       },

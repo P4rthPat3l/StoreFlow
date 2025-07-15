@@ -14,6 +14,10 @@ export const advertisingIdPage: Page = {
     },
     {
       name: "Save Button",
+      condition(page, appData) {
+        const element = page.locator(`//button[.//span[text()='Save']]`);
+        return !element.isDisabled();
+      },
       action: "click",
       fallback: {
         xpath: `//button[.//span[text()='Save']]`,

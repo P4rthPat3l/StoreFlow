@@ -62,16 +62,16 @@ export const mainStoreListingPage: Page = {
             appData.app_splash_screen_url
           )}&device=android`,
           `http://localhost:3000/screenshot?url=${encodeURIComponent(
-            appData.websiteUrl
+            appData.subDomain
           )}&device=android`,
           `http://localhost:3000/screenshot?url=${encodeURIComponent(
-            `${appData.websiteUrl}/contact`
+            `${appData.subDomain}/contact`
           )}&device=android`,
           `http://localhost:3000/screenshot?url=${encodeURIComponent(
-            `${appData.websiteUrl}/delivery`
+            `${appData.subDomain}/delivery`
           )}&device=android`,
           `http://localhost:3000/screenshot?url=${encodeURIComponent(
-            `${appData.websiteUrl}/menu`
+            `${appData.subDomain}/menu`
           )}&device=android`,
         ];
       },

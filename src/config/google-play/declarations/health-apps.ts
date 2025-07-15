@@ -11,5 +11,20 @@ export const healthAppsPage: Page = {
         xpath: `//material-checkbox[.//span[text()='My app does not have any health features']]//input[@type='checkbox']`,
       },
     },
+    {
+      name: "Save Button",
+      action: "click",
+      condition: async (page, appData) => {
+        const element = page.locator(`//button[.//span[text()='Save']]`);
+
+        const isDisabled = await element
+          .isDisabled({ timeout: 1000 })
+          .catch(() => false);
+        return !isDisabled;
+      },
+      fallback: {
+        xpath: `//button[.//span[text()='Save']]`,
+      },
+    },
   ],
 };

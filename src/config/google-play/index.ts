@@ -27,14 +27,14 @@ export const googlePlayPlatform: Platform = {
   pages: {
     main_store_listing: mainStoreListingPage, //done
     advertising_id: advertisingIdPage, // don
-    app_access: appAccessPage,
-    data_safety: dataSafetyPage,
-    government_apps: governmentApps,
-    ads: adsPage,
-    financial_features: financialFeaturesPage,
-    health_apps: healthAppsPage,
-    privacy_policy: privacyPolicyPage,
-    target_audience_and_content: targetAudienceAndContentPage,
-    store_settings: storeSettingsPage,
+    app_access: appAccessPage, // done
+    government_apps: governmentApps, // done
+    data_safety: dataSafetyPage, // need to fill target audience and content first and privecy policy
+    ads: adsPage, // done
+    financial_features: financialFeaturesPage, // done
+    health_apps: healthAppsPage, // done
+    privacy_policy: privacyPolicyPage, // done
+    target_audience_and_content: targetAudienceAndContentPage, // done
+    store_settings: storeSettingsPage, // done
   },
 };
