@@ -176,5 +176,12 @@ export const appAccessPage: Page = {
         ],
       },
     },
+    {
+      name: "Save Button",
+      action: "click",
+      fallback: {
+        xpath: `//button[.//span[text()='Save']]`,
+      },
+    },
   ],
 };

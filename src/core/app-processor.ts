@@ -22,7 +22,7 @@ const getAppDataForGooglePlayApp = (
   // Get the API app_id from the mapping
   const apiAppId = platform.app_mappings[googlePlayAppId];
   if (!apiAppId) {
-    logger.error(
+    console.error(
       `No API app mapping found for Google Play app: ${googlePlayAppId}`
     );
     return null;
@@ -32,15 +32,14 @@ const getAppDataForGooglePlayApp = (
 
   const appData = allAppsData.find((app) => app.app_id === apiAppId);
   if (!appData) {
-    logger.error(`No app data found for API app_id: ${apiAppId}`);
+    console.error(`No app data found for API app_id: ${apiAppId}`);
     return null;
   }
 
-  // Return app data with Google Play app ID for processing
   return {
     ...appData,
-    google_play_app_id: googlePlayAppId, // Add this for reference
-    original_app_id: apiAppId, // Keep original for reference
+    google_play_app_id: googlePlayAppId,
+    original_app_id: apiAppId,
   };
 };
 
@@ -387,14 +386,14 @@ export const processMultipleApps = async (
     }
   }
 
-  logger.info(
+  console.log(
     `Processing ${appsToProcess.length} Google Play apps on platform ${platformName}`
   );
 
   const allResults: ProcessingResult[] = [];
 
   for (const app of appsToProcess) {
-    logger.info(
+    console.log(
       `Processing Google Play app: ${app.google_play_app_id} (using API data from: ${app.app_id})`
     );
 

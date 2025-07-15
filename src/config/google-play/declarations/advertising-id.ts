@@ -12,5 +12,12 @@ export const advertisingIdPage: Page = {
         xpath: `//*[@id="main-content"]/div[1]/div/div[1]/page-router-outlet/page-wrapper/div/app-content-ad-id-declaration-page/console-block-1-column/div/div/console-form/console-form-row/div/div/div[1]/material-radio-group/material-radio[1]`,
       },
     },
+    {
+      name: "Save Button",
+      action: "click",
+      fallback: {
+        xpath: `//button[.//span[text()='Save']]`,
+      },
+    },
   ],
 };

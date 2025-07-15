@@ -169,7 +169,7 @@ const processPlatform = async (
   // ? appData.filter((app) => selectedApps.includes(app.app_id))
   // : appData;
 
-  logger.progress(`Processing ${filteredApps.length} apps on ${platformName}`);
+  console.log(`Processing ${filteredApps.length} apps on ${platformName}`);
   logger.debug(`Filtered apps: ${JSON.stringify(filteredApps)}`);
 
   return await processMultipleApps(

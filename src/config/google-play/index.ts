@@ -20,16 +20,16 @@ export const googlePlayPlatform: Platform = {
   app_mappings: {
     // "366": "4972018017227662082",
     // "367": "4976158818989412534",
-
-    "4975003404960306836": "368", // test
+    // "4975003404960306836": "368", // test
     // "4976158818989412534": "367", // test
+    "4974904425575267307": "355",
   },
   pages: {
-    main_store_listing: mainStoreListingPage, // done
-    advertising_id: advertisingIdPage, // done
-    app_access: appAccessPage, // done
+    main_store_listing: mainStoreListingPage, //done
+    advertising_id: advertisingIdPage, // don
+    app_access: appAccessPage,
     data_safety: dataSafetyPage,
-    government_apps: governmentApps, // done
+    government_apps: governmentApps,
     ads: adsPage,
     financial_features: financialFeaturesPage,
     health_apps: healthAppsPage,
