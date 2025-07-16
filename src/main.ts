@@ -162,7 +162,7 @@ const processPlatform = async (
 
   const createSession = () =>
     createBrowserSession(platformName as any, {
-      validateAuth: false,
+      validateAuth: true,
       authFile: platform.authFile,
     });
   const filteredApps = appData;
@@ -249,7 +249,7 @@ const main = async (): Promise<void> => {
 
     for (const platformName of processingConfig.platforms) {
       try {
-        logger.section(`Processing ${platformName.toUpperCase()}`);
+        console.log(`Processing ${platformName.toUpperCase()}`);
 
         const pagesToProcess = processingConfig.pages[platformName] || [];
         const results = await processPlatform(

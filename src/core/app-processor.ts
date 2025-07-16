@@ -262,8 +262,8 @@ export const processApp = async (
     session = await createBrowserSession();
     const { page, context } = session;
 
-    logger.info(`Processing app ${appData.app_id} on platform ${platformName}`);
-    logger.info(`Processing ${pageNames.length} pages`);
+    console.log(`Processing app ${appData.app_id} on platform ${platformName}`);
+    console.log(`Processing ${pageNames.length} pages`);
 
     // Separate pages into parallel and sequential groups
     const parallelPages: string[] = [];
@@ -280,7 +280,7 @@ export const processApp = async (
 
     // Process parallel pages
     if (parallelPages.length > 0) {
-      logger.info(`Processing ${parallelPages.length} pages in parallel`);
+      console.log(`Processing ${parallelPages.length} pages in parallel`);
       const pagePromises = parallelPages.map((pageName) =>
         processAppPage(context, platform, pageName, appData, settings).then(
           (result) => {
@@ -290,7 +290,7 @@ export const processApp = async (
         )
       );
 
-      logger.info(`Processing ${parallelPages.length} pages in parallel`);
+      console.log(`Processing ${parallelPages.length} pages in parallel`);
 
       const parallelResults = await Promise.all(pagePromises);
       results.push(...parallelResults);
@@ -309,7 +309,7 @@ export const processApp = async (
       results.push(result);
     }
   } catch (error) {
-    logger.error(`Error processing app ${appData.app_id}`, error);
+    console.error(`Error processing app ${appData.app_id}`, error);
     const errorResult: ProcessingResult = {
       app_id: appData.app_id,
       platform: platformName,
@@ -387,14 +387,14 @@ export const processMultipleApps = async (
   }
 
   console.log(
-    `Processing ${appsToProcess.length} Google Play apps on platform ${platformName}`
+    `Processing ${appsToProcess.length} ${platformName} apps on platform ${platformName}`
   );
 
   const allResults: ProcessingResult[] = [];
 
   for (const app of appsToProcess) {
     console.log(
-      `Processing Google Play app: ${app.google_play_app_id} (using API data from: ${app.app_id})`
+      `Processing ${platformName} app: ${app.google_play_app_id} (using API data from: ${app.app_id})`
     );
 
     const results = await processApp(

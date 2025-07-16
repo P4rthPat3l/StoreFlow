@@ -49,9 +49,9 @@ const AUTH_CONFIGS: Record<string, AuthConfig> = {
   app_store: {
     platform: "app_store",
     authFile: "app-store-auth.json",
-    loginUrl: "https://appstoreconnect.apple.com",
+    loginUrl: "https://appstoreconnect.apple.com/login",
     successUrl:
-      /https:\/\/appstoreconnect\.apple\.com\/apps\/\d+\/distribution\/ios\/version\/inflight/,
+      /https:\/\/appstoreconnect\.apple\.com\/apps\/\d+\/distribution\/ios\/[^\/]+/,
     successIndicators: [
       "text=My Apps",
       "text=App Store Connect",
@@ -92,26 +92,53 @@ export const createInitialBrowserSession = async (
   platform: "google_play" | "app_store",
   headless: boolean = false
 ): Promise<{ browser: Browser; context: BrowserContext }> => {
-  logger.info(`🚀 Creating initial browser session for ${platform}`);
-
-  const userDataDir = "./auth-data";
-  const context = await chromium.launchPersistentContext(userDataDir, {
+  const browserType = chromium;
+  const browser = await browserType.launch({
     executablePath: process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
     headless: false,
-    viewport: { width: 1280, height: 800 },
     slowMo: 100,
-    args: ["--disable-blink-features=AutomationControlled"],
-    userAgent:
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    args: [
+      "--disable-blink-features=AutomationControlled",
+      "--start-maximized",
+      "--disable-gpu",
+      "--no-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-software-rasterizer",
+      "--disable-setuid-sandbox",
+    ],
   });
 
-  // const context = await browser.newContext({
-  //   viewport: { width: 1280, height: 720 },
+  const context = await browser.newContext({
+    viewport: null,
+    userAgent:
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    ignoreHTTPSErrors: true,
+    acceptDownloads: false,
+  });
+
+  const page = await context.newPage();
+
+  // Set default timeouts
+  page.setDefaultTimeout(30000);
+  page.setDefaultNavigationTimeout(30000);
+  // logger.info(`🚀 Creating initial browser session for ${platform}`);
+  // const userDataDir = "./auth-data";
+  // const context = await chromium.launchPersistentContext(userDataDir, {
+  //   executablePath: process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
+  //   headless: false,
+  //   viewport: { width: 1280, height: 800 },
+  //   slowMo: 100,
+  //   args: ["--disable-blink-features=AutomationControlled"],
   //   userAgent:
   //     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
   // });
-
-  return { browser: context.browser()!, context };
+  // // const context = await browser.newContext({
+  // //   viewport: { width: 1280, height: 720 },
+  // //   userAgent:
+  // //     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  // // });
+  // return { browser: context.browser()!, context };
+  return { browser, context };
 };
 
 export const performManualLogin = async (
@@ -148,20 +175,20 @@ export const performManualLogin = async (
       timeout: 60000,
     });
 
-    const isAlreadyLoggedIn = await checkIfLoggedIn(
-      page,
-      authConfig,
-      loginCheckUrl,
-      platform
-    );
-    if (isAlreadyLoggedIn) {
-      logger.info(`✅ Already logged in to ${platform}`);
-      await saveAuthSession(context, authConfig);
-      return true;
-    }
+    // const isAlreadyLoggedIn = await checkIfLoggedIn(
+    //   page,
+    //   authConfig,
+    //   loginCheckUrl,
+    //   platform
+    // );
+    // if (isAlreadyLoggedIn) {
+    //   console.log(`✅ Already logged in to ${platform}`);
+    //   await saveAuthSession(context, authConfig);
+    //   return true;
+    // }
 
     // Guide user through manual login
-    logger.info(`
+    console.log(`
 🔑 MANUAL LOGIN REQUIRED
 ========================
 1. The browser window should now be open
@@ -174,15 +201,17 @@ export const performManualLogin = async (
 Waiting for login completion...
     `);
 
-    // Wait for successful login indicators
-    await waitForLoginSuccess(page, authConfig);
+    // Wait for user to complete sign in (up to 5 minutes)
+    await page.waitForURL(authConfig.successUrl, {
+      timeout: 5 * 60 * 1000, // 5 minutes timeout
+    });
 
     // Save the authentication session
-    logger.info(`💾 Saving authentication session...`);
+    console.info(`💾 Saving authentication session...`);
     await saveAuthSession(context, authConfig);
 
-    logger.info(`✅ Authentication successful for ${platform}!`);
-    logger.info(`📁 Session saved to: ${authConfig.authFile}`);
+    console.info(`✅ Authentication successful for ${platform}!`);
+    console.info(`📁 Session saved to: ${authConfig.authFile}`);
 
     return true;
   } catch (error) {
@@ -202,18 +231,21 @@ const checkIfLoggedIn = async (
   platform: "google_play" | "app_store" = "google_play"
 ): Promise<boolean> => {
   try {
-    for (const indicator of authConfig.successIndicators) {
-      try {
-        // await page.waitForSelector(indicator, { timeout: 3000 });
-        await page.waitForURL(authConfig.successUrl, {
-          timeout: 1800000,
-        });
-        logger.info(`✅ Found login success indicator: ${indicator}`);
-        return true;
-      } catch {
-        continue;
-      }
+    // for (const indicator of authConfig.successIndicators) {
+    try {
+      // await page.waitForSelector(indicator, { timeout: 3000 });
+      console.log(
+        `Checking if already logged in by waiting for URL to match: ${authConfig.successUrl}`
+      );
+      await page.waitForURL(authConfig.successUrl, {
+        timeout: 1000,
+      });
+      return true;
+    } catch {
+      // continue;
+      return false;
     }
+    // }
     return false;
   } catch {
     return false;
@@ -224,33 +256,29 @@ const waitForLoginSuccess = async (
   page: any,
   authConfig: AuthConfig
 ): Promise<void> => {
-  const maxWaitTime = 300000; // 5 minutes
-  const checkInterval = 5000; // 5 seconds
-  let elapsed = 0;
-
-  while (elapsed < maxWaitTime) {
-    try {
-      const isLoggedIn = await checkIfLoggedIn(page, authConfig);
-      if (isLoggedIn) {
-        logger.info(`✅ Login detected successfully!`);
-        return;
-      }
-
-      // Show progress every 30 seconds
-      if (elapsed % 30000 === 0 && elapsed > 0) {
-        logger.info(
-          `⏳ Still waiting for login... (${elapsed / 1000}s elapsed)`
-        );
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, checkInterval));
-      elapsed += checkInterval;
-    } catch (error) {
-      console.log(`⚠️ Error checking login status:`, error);
-    }
-  }
-
-  throw new Error(`Login timeout after ${maxWaitTime / 1000} seconds`);
+  // const maxWaitTime = 300000; // 5 minutes
+  // const checkInterval = 5000; // 5 seconds
+  // let elapsed = 0;
+  // while (elapsed < maxWaitTime) {
+  //   try {
+  //     const isLoggedIn = await checkIfLoggedIn(page, authConfig);
+  //     if (isLoggedIn) {
+  //       console.info(`✅ Login detected successfully!`);
+  //       return;
+  //     }
+  //     // Show progress every 30 seconds
+  //     if (elapsed % 30000 === 0 && elapsed > 0) {
+  //       logger.info(
+  //         `⏳ Still waiting for login... (${elapsed / 1000}s elapsed)`
+  //       );
+  //     }
+  //     await new Promise((resolve) => setTimeout(resolve, checkInterval));
+  //     elapsed += checkInterval;
+  //   } catch (error) {
+  //     console.log(`⚠️ Error checking login status:`, error);
+  //   }
+  // }
+  // throw new Error(`Login timeout after ${maxWaitTime / 1000} seconds`);
 };
 
 const saveAuthSession = async (
@@ -282,35 +310,56 @@ export const validateAuthSession = async (
 
     const authPath = authFile || join(process.cwd(), authConfig?.authFile);
 
+    console.log("🔍 checking auth file");
     if (!existsSync(authPath)) {
       console.log(`❌ Auth file not found: ${authPath}`);
       return false;
     }
+    console.log(`✅ Auth file found: ${authPath}`);
 
-    logger.info(`🔍 Validating auth session for ${platform}...`);
+    console.log(`🔍 Validating auth session for ${platform}...`);
 
-    const browserType = platform === "app_store" ? webkit : chromium;
-    browser = await browserType.launch({ headless: true });
+    const browserType = chromium;
+    browser = await browserType.launch({
+      headless: false,
+      executablePath: process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
+      slowMo: 100,
+      args: [
+        "--disable-blink-features=AutomationControlled",
+        "--start-maximized",
+        "--disable-gpu",
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-software-rasterizer",
+        "--disable-setuid-sandbox",
+      ],
+    });
 
     const context = await browser.newContext({
       storageState: authPath,
-      viewport: { width: 1280, height: 720 },
+      viewport: null,
+      userAgent:
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      ignoreHTTPSErrors: true,
+      acceptDownloads: false,
     });
 
     const page = await context.newPage();
+    console.log(`🌐 Navigating to: ${authConfig.loginUrl}`);
     await page.goto(authConfig.loginUrl, { waitUntil: "networkidle" });
 
+    console.log(`🌐 Checking if logged in...`);
     const isValid = await checkIfLoggedIn(page, authConfig);
 
     if (isValid) {
-      logger.info(`✅ Auth session is valid for ${platform}`);
+      console.log(`✅ Auth session is valid for ${platform}`);
     } else {
       console.log(`❌ Auth session is invalid for ${platform}`);
     }
 
     return isValid;
   } catch (error) {
-    logger.error(`❌ Error validating auth session for ${platform}`, error);
+    console.error(`❌ Error validating auth session for ${platform}`, error);
     return false;
   } finally {
     if (browser) {

@@ -40,7 +40,7 @@ export const createBrowserSession = async (
   } = options;
 
   try {
-    logger.info(`🚀 Creating browser session for ${platform}`);
+    console.log(`🚀 Creating browser session for ${platform}`);
 
     if (!checkAuthFile(platform)) {
       console.log(`❌ No authentication found for ${platform}`);
@@ -58,7 +58,7 @@ export const createBrowserSession = async (
     }
 
     if (validateAuth) {
-      logger.info(`🔍 Validating authentication session...`);
+      console.log(`🔍 Validating authentication session...`);
       const isValid = await validateAuthSession(platform, authFile);
       if (!isValid) {
         console.log(`⚠️ Invalid authentication session, re-authenticating...`);
