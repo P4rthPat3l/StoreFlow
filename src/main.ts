@@ -160,17 +160,24 @@ const processPlatform = async (
     );
   }
 
+
   const createSession = () =>
     createBrowserSession(platformName as any, {
       validateAuth: true,
       authFile: platform.authFile,
     });
+      createBrowserSession(platformName as any, {
+        userDataBaseDir : config.platforms?.[platformName]?.userDataBaseDir || "",
+        headless : false
+      });
+
+
   const filteredApps = appData;
   // ? appData.filter((app) => selectedApps.includes(app.app_id))
   // : appData;
 
   console.log(`Processing ${filteredApps.length} apps on ${platformName}`);
-  logger.debug(`Filtered apps: ${JSON.stringify(filteredApps)}`);
+  // logger.debug(`Filtered apps: ${JSON.stringify(filteredApps)}`);
 
   return await processMultipleApps(
     filteredApps,

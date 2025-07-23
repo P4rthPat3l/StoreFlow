@@ -98,6 +98,7 @@ export interface Page {
 
 export interface Platform {
   base_url: string;
+  userDataBaseDir : string;
   authFile?: string;
   loginCheckUrl?: RegExp;
   app_mappings: Record<string, string>;

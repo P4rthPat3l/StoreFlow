@@ -89,3 +89,5 @@ generated-assets/
 /auth-data
 /app-store-auth-data
 /google-play-auth-data
+/browser-data
+/browser-sessions

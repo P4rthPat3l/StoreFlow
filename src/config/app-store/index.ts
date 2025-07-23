@@ -6,6 +6,8 @@ import { inflight } from "./inflight";
 
 export const appStorePlatform: Platform = {
   base_url: "https://appstoreconnect.apple.com/apps",
+  authFile: "app-store-auth.json",
+  userDataBaseDir : "app-store",
   loginCheckUrl:
     /https:\/\/appstoreconnect\.apple\.com\/apps\/\d+\/distribution\/ios\/version\/inflight$/,
   app_mappings: {

@@ -15,6 +15,8 @@ export const googlePlayPlatform: Platform = {
   base_url:
     "https://play.google.com/console/u/3/developers/5696489665814861362/app",
   authFile: process.env.GOOGLE_PLAY_AUTH_FILE,
+
+  userDataBaseDir : "google-play",
   loginCheckUrl:
     /https:\/\/play\.google\.com\/console\/u\/\d+\/developers\/\d+\/app-list(\?.*)?$/,
   app_mappings: {
@@ -22,7 +24,8 @@ export const googlePlayPlatform: Platform = {
     // "367": "4976158818989412534",
     // "4975003404960306836": "368", // test
     // "4976158818989412534": "367", // test
-    "4974904425575267307": "355",
+    // "4974904425575267307": "355",
+    "4973847621232363506": "341",
   },
   pages: {
     main_store_listing: mainStoreListingPage, //done
