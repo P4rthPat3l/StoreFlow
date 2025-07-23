@@ -15,20 +15,24 @@ export const mainStoreListingPage: Page = {
     },
     {
       name: "App Short Description",
-      api_key: "app_details.app_short_description",
+      // api_key: "app_details.app_short_description",
       fallback: {
         xpath: `//*[@id="main-content"]/div[1]/div/div[1]/page-router-outlet/page-wrapper/div/main-store-listing-page/listing-localizations/localization-section/div/div[2]/localized-listing/console-block-1-column[3]/div/div/console-form/console-form-row[2]/div/div[2]/div[1]/localized-text-input/div/div/material-input/label/input`,
       },
       action: "setText",
+      default_value:
+        "Bestellen Sie Ihr Lieblingsessen jederzeit mit unserer neuen App!",
       //   validation: /^.{1,50}$/,
     },
     {
       name: "App Full Description",
-      api_key: "app_details.app_full_description",
+      // api_key: "app_details.app_full_description",
       fallback: {
         xpath: `//*[@id="main-content"]/div[1]/div/div[1]/page-router-outlet/page-wrapper/div/main-store-listing-page/listing-localizations/localization-section/div/div[2]/localized-listing/console-block-1-column[3]/div/div/console-form/console-form-row[3]/div/div[2]/div[1]/localized-text-input/div/div/material-input/label/span[2]/textarea`,
       },
       action: "setText",
+      default_value:
+        "Wir freuen uns auf Ihre Bestellung über unsere neue App. Laden Sie einfach unsere App herunter und bestellen Sie, wann immer Sie möchten – ganz bequem und unkompliziert. Vielen Dank für Ihre Unterstützung!",
       //   validation: /^.{1,50}$/,
     },
     {
@@ -58,21 +62,11 @@ export const mainStoreListingPage: Page = {
       action: "uploadFile",
       valueProcessor: (appData: AppData) => {
         return [
-          `http://localhost:3000/screenshot?url=${encodeURIComponent(
-            appData.app_splash_screen_url
-          )}&device=android`,
-          `http://localhost:3000/screenshot?url=${encodeURIComponent(
-            appData.subDomain
-          )}&device=android`,
-          `http://localhost:3000/screenshot?url=${encodeURIComponent(
-            `${appData.subDomain}/contact`
-          )}&device=android`,
-          `http://localhost:3000/screenshot?url=${encodeURIComponent(
-            `${appData.subDomain}/delivery`
-          )}&device=android`,
-          `http://localhost:3000/screenshot?url=${encodeURIComponent(
-            `${appData.subDomain}/menu`
-          )}&device=android`,
+          `http://localhost:3000/screenshot?url=${encodeURIComponent(appData.app_splash_screen_url)}&device=android`,
+          `http://localhost:3000/screenshot?url=${encodeURIComponent(appData.websiteUrl)}&device=android`,
+          `http://localhost:3000/screenshot?url=${encodeURIComponent(`${appData.websiteUrl}/contact`)}&device=android`,
+          `http://localhost:3000/screenshot?url=${encodeURIComponent(`${appData.websiteUrl}/delivery`)}&device=android`,
+          `http://localhost:3000/screenshot?url=${encodeURIComponent(`${appData.websiteUrl}/menu`)}&device=android`,
         ];
       },
 

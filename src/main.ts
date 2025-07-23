@@ -162,10 +162,6 @@ const processPlatform = async (
 
 
   const createSession = () =>
-    createBrowserSession(platformName as any, {
-      validateAuth: true,
-      authFile: platform.authFile,
-    });
       createBrowserSession(platformName as any, {
         userDataBaseDir : config.platforms?.[platformName]?.userDataBaseDir || "",
         headless : false
