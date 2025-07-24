@@ -21,14 +21,14 @@ export const createBrowserSession = async (
     authFile?: string;
     validateAuth?: boolean;
     userDataBaseDir?: string;
-  } = {},
+  } = {}
 ) => {
   try {
     logger.info(`🚀 Creating browser session for ${platform}`);
 
     const userDataPath = path.join(
       "./browser-sessions",
-      options.userDataBaseDir!,
+      options.userDataBaseDir!
     );
     if (!fs.existsSync(userDataPath)) {
       fs.mkdirSync(userDataPath, { recursive: true });
@@ -36,10 +36,19 @@ export const createBrowserSession = async (
 
     const context = await chromium.launchPersistentContext(userDataPath, {
       headless: options.headless,
-      // executablePath : process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
-      viewport: { width: 1280, height: 720 },
+      executablePath: process.env.GOOGLE_PLAY_EXECUTABLE_PATH,
+      slowMo: 100,
       userAgent:
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      args: [
+        "--disable-blink-features=AutomationControlled",
+        "--start-maximized",
+        "--disable-gpu",
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-software-rasterizer",
+        "--disable-setuid-sandbox",
+      ],
     });
 
     const browser = context.browser()!;
@@ -119,13 +128,13 @@ export const createBrowserSession = async (
   } catch (error) {
     logger.error(`❌ Failed to create browser session for ${platform}`, error);
     throw new Error(
-      `Browser session creation failed: ${(error as Error).message}`,
+      `Browser session creation failed: ${(error as Error).message}`
     );
   }
 };
 
 export const closeBrowserSession = async (
-  session: BrowserSession,
+  session: BrowserSession
 ): Promise<void> => {
   try {
     logger.info(`🔒 Closing browser session...`);
@@ -153,7 +162,7 @@ export const navigateToPage = async (
   context: BrowserContext,
   baseUrl: string,
   urlTemplate: string,
-  appId?: string,
+  appId?: string
 ): Promise<Page> => {
   try {
     const url = appId
@@ -185,7 +194,7 @@ export const navigateToPage = async (
 
 export const checkPageAuthentication = async (
   page: Page,
-  platform: "google_play" | "app_store",
+  platform: "google_play" | "app_store"
 ): Promise<boolean> => {
   try {
     const authIndicators = {
@@ -223,20 +232,20 @@ export const checkPageAuthentication = async (
 export const createBrowserSessionWithRetry = async (
   platform: "google_play" | "app_store",
   maxRetries: number = 3,
-  options: Parameters<typeof createBrowserSession>[1] = {},
+  options: Parameters<typeof createBrowserSession>[1] = {}
 ): Promise<BrowserSession> => {
   let lastError: Error;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       logger.info(
-        `🔄 Creating browser session (attempt ${attempt}/${maxRetries})`,
+        `🔄 Creating browser session (attempt ${attempt}/${maxRetries})`
       );
       return await createBrowserSession(platform, options);
     } catch (error) {
       lastError = error as Error;
       console.log(
-        `⚠️ Session creation attempt ${attempt} failed: ${lastError.message}`,
+        `⚠️ Session creation attempt ${attempt} failed: ${lastError.message}`
       );
 
       if (attempt < maxRetries) {
@@ -250,6 +259,6 @@ export const createBrowserSessionWithRetry = async (
   throw new Error(
     `Failed to create browser session after ${maxRetries} attempts: ${
       lastError!.message
-    }`,
+    }`
   );
 };
