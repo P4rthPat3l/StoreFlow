@@ -180,7 +180,7 @@ export const dataSafetyPage: Page = {
                         name: "'Name' Edit Button",
                         action: "click",
                         fallback: {
-                          xpath: `(//div[@class='particle-table-row' and @role='row'       and .//ess-cell[@essfield='dataType']//text-field[contains(normalize-space(.), 'Name')]] //ess-cell[@essfield='action']//button)[1]`,
+                          xpath: `(//div[@class='particle-table-row' and @role='row'       and .//ess-cell[@essfield='dataType']//text-field[contains(normalize-space(.), 'Name')]] //ess-cell[@essfield='action']//button)[2]`,
                         },
                       },
                       {
@@ -278,7 +278,7 @@ export const dataSafetyPage: Page = {
                         name: "'Email address' Edit Button",
                         action: "click",
                         fallback: {
-                          xpath: `(//div[@class='particle-table-row' and @role='row'       and .//ess-cell[@essfield='dataType']//text-field[contains(normalize-space(.), 'Email address')]] //ess-cell[@essfield='action']//button)[1]`,
+                          xpath: `(//div[@class='particle-table-row' and @role='row'       and .//ess-cell[@essfield='dataType']//text-field[contains(normalize-space(.), 'Email address')]] //ess-cell[@essfield='action']//button)[2]`,
                         },
                       },
                       {
@@ -368,7 +368,7 @@ export const dataSafetyPage: Page = {
                         name: "'Address' Edit Button",
                         action: "click",
                         fallback: {
-                          xpath: `(//div[@class='particle-table-row' and @role='row'       and .//ess-cell[@essfield='dataType']//text-field[contains(normalize-space(.), 'Address')]] //ess-cell[@essfield='action']//button)[1]`,
+                          xpath: `(//div[@class='particle-table-row' and @role='row'       and .//ess-cell[@essfield='dataType']//text-field[contains(normalize-space(.), 'Address')]] //ess-cell[@essfield='action']//button)[2]`,
                         },
                       },
                       {
@@ -458,7 +458,7 @@ export const dataSafetyPage: Page = {
                         name: "'Phone number' Edit Button",
                         action: "click",
                         fallback: {
-                          xpath: `(//div[contains(@class, 'particle-table-row') and @role='row'       and .//ess-cell[@essfield='dataType']//text-field[contains(normalize-space(.), 'Phone number')]] //ess-cell[@essfield='action']//button[@aria-label='Open Phone number questions'])[1]`,
+                          xpath: `(//div[contains(@class, 'particle-table-row') and @role='row'       and .//ess-cell[@essfield='dataType']//text-field[contains(normalize-space(.), 'Phone number')]] //ess-cell[@essfield='action']//button[@aria-label='Open Phone number questions'])[2]`,
                         },
                       },
                       {
